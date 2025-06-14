@@ -1,0 +1,136 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const app = require('../app');
+const {client} = require('../utils/rabbitMQ');
+const clientRedis =  require('../infra/redis');
+const amqplib = require('amqplib');
+const debug = require('debug')('apipaykwanza:server');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const colorTerminal = require('cli-color');
+const logger = require('../services/loggerService');  
+require("dotenv").config({ path: path.resolve(path.join(__dirname, '../','.env')) });
+
+var options = {
+    cert: fs.readFileSync(path.resolve(__dirname,"../",path.join('certs', "sslportal.crt"))),
+    key: fs.readFileSync(path.resolve(__dirname,"../",path.join('certs', "sslportal.key"))),
+    port:               process.env.PORT_API,
+}
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+const portHTTPS = normalizePortHTTPS(process.env.PORT_API || process.env.PORT_API_FOR_CONFLIT);
+app.set('port', portHTTPS);
+
+/**
+ * Create HTTP server.
+ */
+
+
+const serverHTTPS = https.createServer({...options, rejectUnauthorized: false, requestCert: false, insecureHTTPParser: true }, app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+serverHTTPS.listen(portHTTPS, async ()=>{
+  
+  logger("SERVIDOR").debug(`Iniciando o servidor na porta ${portHTTPS}`)
+  console.log(colorTerminal.yellowBright(`API server initial on port ${portHTTPS} ⚡`));
+  
+});
+
+serverHTTPS.on('error', onErrorHTTPS);
+serverHTTPS.on('listening', onListeningHTTPS);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePortHTTPS(val) {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+async function onErrorHTTPS(error) {
+
+  logger("SERVIDOR").fatal(`Erros no servidor -> ${error}`)
+  console.log(colorTerminal.yellowBright("API server error ❌\n"));
+
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+async function onListeningHTTPS() {
+  
+  logger("SERVIDOR").info(`Servidor iniciado`)
+  console.log(colorTerminal.greenBright("API listening HTTPS 🌟\n"));
+  
+  const addr = serverHTTPS.address();
+  const bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+
+  // logger("SERVIDOR:REDIS").info(`A tentar a conexão com Redis`)
+  // console.log(colorTerminal.yellowBright(`A tentar a conexão com Redis`))
+  // clientRedis.connect()
+  // console.log(colorTerminal.greenBright(`Conexão estabelecida com sucesso com o Redis`))
+  // logger("SERVIDOR:REDIS").info(`Conexão estabelecida com sucesso com o Redis`)
+  
+}
+
+process.on('uncaughtException', function (err) {
+  logger("SERVIDOR").fatal(`Houve o erro ${err.cause}`)
+  logger("SERVIDOR").fatal(`Houve o erro ${err.name}`)
+  logger("SERVIDOR").fatal(`Houve o erro ${err.stack.replaceAll("\n", "")}`) 
+  logger("SERVIDOR").fatal(`Houve o erro ${err.message}`)
+
+  process.cwd("npm run dev")
+});

@@ -1,0 +1,65 @@
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const loggerMorgan = require("morgan");
+const cors = require("cors");
+const helmet = require("helmet");
+const Sentry = require("@sentry/node");
+const xmlparser = require("express-xml-bodyparser");
+const compression = require('compression')
+const {fileUploadApp, rateLimiter, redirectURL, tokenApp, debugSentry, errorDisplay, errorHandle, validadeTokenApp, cacheRedis, timeoutApp, responseIndex} = require('./helpers/middlewares')
+
+const clientesRouter = require("./routes/clientes");
+
+require("dotenv").config({ path: path.join(__dirname, '.env') });
+
+const app = express(); 
+
+Sentry.init({
+  dsn: "https://35aac96209005871c0b0960ce2e3358d@o4508811616518144.ingest.de.sentry.io/4508811618811984",   
+  tracesSampleRate: 1.0,
+});
+
+app.use(Sentry.Handlers.requestHandler());
+app.use(fileUploadApp);
+app.use(rateLimiter);
+app.use(helmet({ crossOriginResourcePolicy: false }));
+
+app.use(loggerMorgan("dev"));
+app.use(express.json({limit: '100mb'}));
+app.use(cookieParser());
+app.use("/v1/images", express.static(path.join(__dirname, "assets", "imgs")));
+app.use(cors());
+app.use(express.urlencoded({ extended: false })); 
+app.use(compression());
+
+// credencial de token
+
+app.get("/", redirectURL);
+
+// app.use("/", cacheRedis)
+
+// token request
+app.post('/v0/token-app', tokenApp)
+
+app.get("/debug-sentry", debugSentry);
+
+
+app.use(validadeTokenApp);
+
+app.get("/v1/", responseIndex);
+app.use("/v1/clientes", clientesRouter);
+
+app.use(timeoutApp); 
+
+// manipulador de erros do Sentry para produção
+app.use(Sentry.Handlers.errorHandler());
+
+// capturar 404 e encaminhar para o manipulador de erros
+app.use(errorHandle);
+
+// manipulador de erros
+app.use(errorDisplay);
+
+
+module.exports = app;

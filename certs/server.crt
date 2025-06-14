@@ -1,0 +1,70 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4099 (0x1003)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=AO, ST=Luanda, L=Intelize Investimentos, O=IT-Angola, OU=Pagamentos
+        Validity
+            Not Before: Jun 19 15:24:55 2023 GMT
+            Not After : Jun 18 15:24:55 2024 GMT
+        Subject: C=AO, ST=Launda, L=Talatona, O=Server, OU=Server, CN=Server
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (1024 bit)
+                Modulus:
+                    00:d7:b4:9f:61:c1:b3:ad:55:70:6e:bf:fc:8a:46:
+                    70:d9:f3:b8:cd:dc:c9:3e:48:d7:8a:b8:56:ea:2b:
+                    d5:a5:63:be:25:34:ca:f7:78:1b:cd:81:16:5b:ff:
+                    05:32:f6:10:c6:db:4d:c5:05:45:5d:ea:88:5a:bd:
+                    df:74:87:b5:eb:d9:38:a3:8b:ab:08:33:ac:ee:b1:
+                    e7:5f:a1:78:17:42:be:29:3a:56:62:c5:27:38:2b:
+                    60:7e:66:b0:5e:cd:25:7a:0a:71:05:af:4a:74:e8:
+                    8b:6b:f5:25:c8:0b:c1:4c:58:f8:83:b2:b0:a6:04:
+                    4b:15:e6:88:95:80:2c:4b:bd
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                A9:FB:E8:97:2E:B3:15:48:B5:05:A1:46:2B:A3:16:E7:40:70:BB:7D
+            X509v3 Authority Key Identifier: 
+                keyid:28:2A:60:A6:AD:EB:DE:DD:0E:1A:7F:95:9D:18:D7:42:07:7D:DB:01
+
+    Signature Algorithm: sha256WithRSAEncryption
+         bc:58:91:b5:18:82:5a:98:0c:49:6f:ac:9d:1d:74:d9:8a:93:
+         8b:22:06:6f:56:62:ac:c3:0c:61:ff:fc:05:d9:8a:30:51:7d:
+         9d:bf:6c:74:f3:50:52:d3:a8:bf:a4:78:20:10:cd:35:92:a6:
+         56:8b:2e:ed:c7:05:6c:94:ad:af:ba:92:9b:46:7d:9d:94:5c:
+         eb:16:10:ad:1d:0c:6d:1b:48:56:2e:8c:4e:13:50:00:9f:03:
+         a9:4a:19:a1:fd:4c:fb:25:c9:e9:16:16:a2:e4:b9:b0:c9:dc:
+         34:56:19:49:a5:5d:cb:09:2a:cf:f6:bf:d1:c4:67:9b:0b:6c:
+         dd:27:8e:dd:4e:18:3a:dc:55:9c:93:e6:ac:25:0e:4b:7a:1a:
+         9b:81:2a:b2:c3:3e:e4:65:c5:10:12:2a:fc:6e:e0:6c:95:49:
+         d5:42:29:d0:34:70:b2:94:3e:64:2b:16:13:6d:2a:2b:5f:2d:
+         19:f7:e1:f2:cd:9a:25:80:e2:66:9e:d1:f1:56:01:3b:ac:b3:
+         15:a1:ee:a8:ed:48:b1:09:91:7f:f7:ec:fb:7b:83:9e:b1:c4:
+         fa:6c:3a:e9:15:5e:19:40:e1:df:40:ed:44:8c:c0:a4:d7:2d:
+         66:2d:ee:2d:a3:6d:98:0d:1e:d9:45:2a:be:1f:9e:86:58:01:
+         2d:7e:a3:f9
+-----BEGIN CERTIFICATE-----
+MIIDPzCCAiegAwIBAgICEAMwDQYJKoZIhvcNAQELBQAwaDELMAkGA1UEBhMCQU8x
+DzANBgNVBAgMBkx1YW5kYTEfMB0GA1UEBwwWSW50ZWxpemUgSW52ZXN0aW1lbnRv
+czESMBAGA1UECgwJSVQtQW5nb2xhMRMwEQYDVQQLDApQYWdhbWVudG9zMB4XDTIz
+MDYxOTE1MjQ1NVoXDTI0MDYxODE1MjQ1NVowZDELMAkGA1UEBhMCQU8xDzANBgNV
+BAgMBkxhdW5kYTERMA8GA1UEBwwIVGFsYXRvbmExDzANBgNVBAoMBlNlcnZlcjEP
+MA0GA1UECwwGU2VydmVyMQ8wDQYDVQQDDAZTZXJ2ZXIwgZ8wDQYJKoZIhvcNAQEB
+BQADgY0AMIGJAoGBANe0n2HBs61VcG6//IpGcNnzuM3cyT5I14q4Vuor1aVjviU0
+yvd4G82BFlv/BTL2EMbbTcUFRV3qiFq933SHtevZOKOLqwgzrO6x51+heBdCvik6
+VmLFJzgrYH5msF7NJXoKcQWvSnToi2v1JcgLwUxY+IOysKYESxXmiJWALEu9AgMB
+AAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJh
+dGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBSp++iXLrMVSLUFoUYroxbnQHC7fTAf
+BgNVHSMEGDAWgBQoKmCmreve3Q4af5WdGNdCB33bATANBgkqhkiG9w0BAQsFAAOC
+AQEAvFiRtRiCWpgMSW+snR102YqTiyIGb1ZirMMMYf/8BdmKMFF9nb9sdPNQUtOo
+v6R4IBDNNZKmVosu7ccFbJStr7qSm0Z9nZRc6xYQrR0MbRtIVi6MThNQAJ8DqUoZ
+of1M+yXJ6RYWouS5sMncNFYZSaVdywkqz/a/0cRnmwts3SeO3U4YOtxVnJPmrCUO
+S3oam4EqssM+5GXFEBIq/G7gbJVJ1UIp0DRwspQ+ZCsWE20qK18tGffh8s2aJYDi
+Zp7R8VYBO6yzFaHuqO1IsQmRf/fs+3uDnrHE+mw66RVeGUDh30DtRIzApNctZi3u
+LaNtmA0e2UUqvh+ehlgBLX6j+Q==
+-----END CERTIFICATE-----
