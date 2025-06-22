@@ -111,10 +111,10 @@ module.exports.getClientesHash = async function(hash) {
 
       logger("SERVIDOR:ClientesHash").debug("Verificar se existencia do cliente")
       const result  = await database('clientes')
-      .where({endereco_mac_unico:hash})
-      .andWhere({bloqueio: '1'});
+      .where({hash_autenticador:hash})
+      .andWhere({bloqueio: '0'});
 
-      if(result.length == 0 ){
+      if(!result.length){
         logger("SERVIDOR:ClientesHash").info("Cliente está bloqueado")
         const rs = response("erro", 403, "Cliente está bloqueado");
         return rs
@@ -122,21 +122,14 @@ module.exports.getClientesHash = async function(hash) {
       }else{
 
         logger("SERVIDOR:ClientesHash").debug("Buscar a configuração do cliente")
-        const [verifivarPagamentoTempoReal] = await database('configuracoes').where({cliente_entidade: result[0].numero_entidade}) 
-
-        if((verifivarPagamentoTempoReal?.servico_pagamento_por_sector == "false") && (verifivarPagamentoTempoReal?.servico_gpo == "false")){
-          logger("SERVIDOR:ClientesHash").warn("Serviço de pagamento inactivo")
-          const rs = response("erro", 423, "Serviço de pagamento inactivo");
-          return rs     
-        }
+        const [verifivarPagamentoTempoReal] = await database('configuracoes').where({cliente: result[0].id_clientes}) 
 
         if(verifivarPagamentoTempoReal?.tentativas_login > 0){
 
           logger("SERVIDOR:ClientesHash").debug("Selecionar da base de dados")
           const [clientes] = await database('clientes')
-          .join('usuarios',"usuarios.id_usuarios","=","clientes.criado_por")
-          .join('configuracoes',"configuracoes.cliente_entidade","=","clientes.numero_entidade")
-          .where({endereco_mac_unico:hash})
+          .join('configuracoes',"configuracoes.cliente","=","clientes.id_clientes")
+          .where({hash_autenticador:hash})
           .orderBy('id_clientes','DESC')  
         
           logger("SERVIDOR:ClientesHash").info("Respondeu a solicitação")
