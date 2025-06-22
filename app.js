@@ -14,6 +14,8 @@ const {fileUploadApp, rateLimiter, redirectURL, tokenApp, debugSentry, errorDisp
 const apetiteRouter = require("./routes/apetite_ao_risco");
 const categoriaAoRistRouter = require("./routes/categoria_de_risco");
 const clientesRouter = require("./routes/clientes");
+const colaboradoresDeConsentimentoRouter = require("./routes/colaboradores_de_consentimento");
+const departamentoClientesRouter = require("./routes/departamentos_clientes");
 const listaDeCategoriasRouter = require("./routes/lista_de_categoria_de_risco");
 const perguntasCategoriasRouter = require("./routes/perguntas_categorias");
 const respostasPerguntasCategoriasRouter = require("./routes/respostas_perguntas_categorias");
@@ -58,6 +60,8 @@ app.get("/v1/", responseIndex);
 app.use("/v1/apetite-ao-risco", apetiteRouter);
 app.use("/v1/categoria-ao-risco", categoriaAoRistRouter);
 app.use("/v1/clientes", clientesRouter);
+app.use("/v1/colaboradores-de-consentimentos", colaboradoresDeConsentimentoRouter);
+app.use("/v1/departamentos-clientes", departamentoClientesRouter);
 app.use("/v1/lista-de-categoria-de-risco", listaDeCategoriasRouter);
 app.use("/v1/perguntas-categorias", perguntasCategoriasRouter);
 app.use("/v1/respostas-perguntas-categorias", respostasPerguntasCategoriasRouter);

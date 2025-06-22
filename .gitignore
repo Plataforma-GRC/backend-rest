@@ -117,4 +117,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# aplicatios folders/files
+
+logs/api/*
+logs/application/*
+
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node

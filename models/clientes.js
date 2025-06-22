@@ -133,6 +133,8 @@ module.exports.getClientesHash = async function(hash) {
           .orderBy('id_clientes','DESC')  
         
           logger("SERVIDOR:ClientesHash").info("Respondeu a solicitação")
+          
+          delete clientes?.senha
           const rs = response("sucesso", 200, clientes, "json");          
           return rs
 
