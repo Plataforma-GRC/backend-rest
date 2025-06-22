@@ -9,7 +9,14 @@ const xmlparser = require("express-xml-bodyparser");
 const compression = require('compression')
 const {fileUploadApp, rateLimiter, redirectURL, tokenApp, debugSentry, errorDisplay, errorHandle, validadeTokenApp, cacheRedis, timeoutApp, responseIndex} = require('./helpers/middlewares')
 
+
+// Importe de rotas
+const apetiteRouter = require("./routes/apetite_ao_risco");
+const categoriaAoRistRouter = require("./routes/categoria_de_risco");
 const clientesRouter = require("./routes/clientes");
+const listaDeCategoriasRouter = require("./routes/lista_de_categoria_de_risco");
+const perguntasCategoriasRouter = require("./routes/perguntas_categorias");
+const respostasPerguntasCategoriasRouter = require("./routes/respostas_perguntas_categorias");
 
 require("dotenv").config({ path: path.join(__dirname, '.env') });
 
@@ -48,7 +55,12 @@ app.get("/debug-sentry", debugSentry);
 app.use(validadeTokenApp);
 
 app.get("/v1/", responseIndex);
+app.use("/v1/apetite-ao-risco", apetiteRouter);
+app.use("/v1/categoria-ao-risco", categoriaAoRistRouter);
 app.use("/v1/clientes", clientesRouter);
+app.use("/v1/lista-de-categoria-de-risco", listaDeCategoriasRouter);
+app.use("/v1/perguntas-categorias", perguntasCategoriasRouter);
+app.use("/v1/respostas-perguntas-categorias", respostasPerguntasCategoriasRouter);
 
 app.use(timeoutApp); 
 

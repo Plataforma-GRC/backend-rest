@@ -417,7 +417,7 @@ module.exports.loginClientes = async function({email, senha}, req) {
                   .where({email}).update({ultimo_login: login, hash_autenticador: uuidv4()})  
                   
                   logger("SERVIDOR:loginClientes").debug("Buscar dados do cliente")
-                  const [resultNew]  = await database('clientes').select("hash_autenticador AS hash", "id_clientes AS entidade","ultimo_login AS login")
+                  const [resultNew]  = await database('clientes').select("hash_autenticador AS hash", "id_clientes AS entidade","ultimo_login AS login", "novo_usuario")
                   .join("configuracoes","configuracoes.cliente","=","clientes.id_clientes")
                   .where({email})
 
@@ -425,7 +425,7 @@ module.exports.loginClientes = async function({email, senha}, req) {
                   await database('configuracoes').where({cliente: resultNew.entidade}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
 
                   logger("SERVIDOR:loginClientes").info("Cliente logado com sucesso") 
-                  const rs = response("sucesso", 202, {hash:resultNew.hash, ultimo_login: resultNew.login, senha_padrao: resultNew.senha_padrao, entidade: resultNew.entidade, master: true});
+                  const rs = response("sucesso", 202, {hash:resultNew.hash, ultimo_login: resultNew.login, novo_usuario: resultNew.novo_usuario, entidade: resultNew.entidade, master: true});
                   return rs
 
               }else{
@@ -547,7 +547,7 @@ module.exports.patchClientes = async function(id_clientes, dados, req) {
   try {
 
     logger("SERVIDOR:patchClientes").debug(`Verificar se é um  cliente do serviço GPO`)
-    const clienteVerify = await database('clientes').where({id_clientes}).orWhere({gpo_numero_comerciante:id_clientes})
+    const clienteVerify = await database('clientes').where({id_clientes})
     let entidade = ""
 
     if(!clienteVerify.length){
@@ -556,47 +556,14 @@ module.exports.patchClientes = async function(id_clientes, dados, req) {
       return rs    
     }
 
-    if(clienteVerify.length){
-      id_clientes = clienteVerify[0].id_clientes
-      entidade = clienteVerify[0].numero_entidade
-    }
-
-
-    const actualizado_em = new Date().toISOString().replace('T',' ').substr(0,19)
-    
-    if(dados.montante_maximo_pagamento)
-      dados.montante_maximo_pagamento = String(dados.montante_maximo_pagamento).substr(-2) == "00" ? dados.montante_maximo_pagamento + ".00" : dados.montante_maximo_pagamento
-    
-    if(dados.montante_minimo_pagamento)
-      dados.montante_minimo_pagamento = String(dados.montante_minimo_pagamento).substr(-2) == "00" ? dados.montante_minimo_pagamento + ".00" : dados.montante_minimo_pagamento
-    
-    if(dados.caraterizacao_cliente){
-      if(dados.caraterizacao_cliente == "Comum"){
-
-        logger("SERVIDOR:patchClientes").debug(`Verificar o cliente`)
-        cliente = await database('clientes').where({id_clientes})
-        
-        logger("SERVIDOR:patchClientes").debug(`Deletando a parametrização do custo de uso`)
-        await database('percentagem_por_uso')
-        .where({tipo_cliente: "Especifico"})
-        .where({entidade_especifica: cliente[0].numero_entidade})
-        .del()
-      }
-    } 
+    const cliente_update = new Date().toISOString().replace('T',' ').substr(0,19)
     
     logger("SERVIDOR:patchClientes").debug(`Actualizado o cliente`)
-    await database('clientes').where({id_clientes}).update({...dados, actualizado_em})
-
-    if(dados?.gpo_comerciante_hash){
-      logger("SERVIDOR:patchClientes").debug(`Actualizado o serviço do GPO para true`)
-      if(clienteVerify[0]?.gpo_numero_comerciante) await database('configuracoes').where({cliente_entidade: entidade}).update({servico_gpo:'true'})
-    }
+    await database('clientes').where({id_clientes}).update({...dados, cliente_update})
+    
 
     logger("SERVIDOR:patchClientes").info(`Cliente actualizado com sucesso`)
-    const rs = response("sucesso", 202, "Cliente actualizado com sucesso", "json", {
-      entidadeGPO: clienteVerify[0]?.gpo_numero_comerciante,
-      logs: req && {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "CLIENTES", informacao: {...dados, id_clientes}, entidade: "01157"}
-    });
+    const rs = response("sucesso", 202, "Cliente actualizado com sucesso");
     return rs
     
   } catch (erro) {

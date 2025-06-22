@@ -397,30 +397,18 @@ module.exports.patchClientes = async function(req, res, next) {
         logger("SERVIDOR:patchClientes").info(`Iniciando actualização do cliente`)
         const {id_clientes} = req.params
         const dados = req.body
+        
+        const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
         const schemaEntidades = yup.object().shape({
+          nome_empresa: yup.string().min(5),
           email: yup.string().email(),
+          email_2: yup.string().email(),
           senha: yup.string(),
           confirmar_senha: yup.string().oneOf([yup.ref("senha")]),
-          nome_empresa: yup.string().min(5),
-          nif: yup.string(),
-          contacto: yup.string(),
-          numero_entidade: yup.string().min(5),
-          num_padrao_referencias: yup.mixed().oneOf(['9', '10', '11', '12', '13', '14', '15']).default('9'), 
-          responsavel: yup.string().min(5),          
-          entidade_do_tipo: yup.mixed().oneOf(['81', '89', '99']), 
-          entidade_negocio: yup.string().min(5),
-          montante_maximo_pagamento: yup.number().min(10).max(19999999),
-          montante_minimo_pagamento: yup.number().min(10).max(19999999),
-          versao_mensagem_PRT: yup.mixed().oneOf(['02', '03', '04', '05']).default('04'), 
-          parametrizado_como: yup.mixed().oneOf(['Novo', 'Migrado']),
-          validacao_referencias: yup.mixed().oneOf(['Realtime','Ficheiros']),
-          ultimo_ficheiro_enviado_a_emis: yup.string().default('00000000000').min(11),
-          gpo_numero_comerciante: yup.string().default(null),
-          gpo_numero_cartao: yup.string().default(null),
-          gpo_numero_banco: yup.string().default(null),
-          gpo_numero_POS: yup.string().default(null),
-          gpo_numero_establecimento: yup.string().default(null),
+          nif: yup.string().trim(),
+          contacto: yup.string().matches(phoneRegExp, 'Phone number is not valid'),
+          contacto_2: yup.string().matches(phoneRegExp, 'Phone number is not valid'),
         })
 
         logger("SERVIDOR:patchClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
@@ -465,52 +453,6 @@ module.exports.patchClientes = async function(req, res, next) {
         res.status(result.statusCode).json(result)
 
         if(result.status == "sucesso"){
-
-          if(dados?.gpo_numero_comerciante){
-
-            if(result.entidadeGPO){
-              const queue = 'reference-entities';   
-              const channel = await client.rabbitMQ.createChannel() 
-              await channel.assertQueue(queue)
-              const payload = JSON.stringify({
-                kind: "entities:updated",
-                body:{
-                  "storeName": dados.nome_empresa,
-                  "merchantCode":dados.gpo_numero_comerciante,
-                  "cardNumber":dados.gpo_numero_cartao,
-                  "bankNumber":dados.gpo_numero_banco,
-                  "email": dados.email,
-                  "numbersOfPos":dados.gpo_numero_POS,
-                  "numberOfEstablishments": dados.gpo_numero_establecimento
-                }
-              })
-                channel.sendToQueue(queue, Buffer.from(payload));
-                console.log("Actualizar Clientes: Enviado para fila")
-              }
-          }
-
-          if(dados?.gpo_numero_comerciante){
-
-              if(!result.entidadeGPO){
-                const queue = 'reference-entities';      
-                const channel = await client.rabbitMQ.createChannel()
-                await channel.assertQueue(queue)
-                const payload = JSON.stringify({
-                  kind: "entities:created",
-                  body:{
-                    "storeName": dados.nome_empresa,
-                    "merchantCode":dados.gpo_numero_comerciante,
-                    "cardNumber":dados.gpo_numero_cartao,
-                    "bankNumber":dados.gpo_numero_banco,
-                    "email": dados.email,
-                    "numbersOfPos":dados.gpo_numero_POS,
-                    "numberOfEstablishments": dados.gpo_numero_establecimento
-                  }
-                })
-                  channel.sendToQueue(queue, Buffer.from(payload));
-                  console.log("Cadastrar Clientes: Enviado para fila")
-              }
-          }
           
           sendRequestOnMicroservices({lg, nt, wk})
 

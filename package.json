@@ -51,6 +51,7 @@
     "nodemailer": "^6.9.4",
     "npm": "^10.3.0",
     "npm-check-updates": "^16.10.17",
+    "openai": "^5.5.1",
     "phantomjs-prebuilt": "^2.1.16",
     "pino": "^6.11.3",
     "pino-http": "^8.5.1",

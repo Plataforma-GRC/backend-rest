@@ -98,7 +98,7 @@ module.exports.errorDisplay = function (err, req, res, next) {
     res.locals.message = err.message;
     res.locals.error = req.app.get("env") === "development" ? err : {};
   
-    // console.log(err)
+    console.log(err)
     // renderizar a página de erro ou enviar mensagem em JSON
     const rs = response("erro", err.status || 500, "A rota que tentou solicitar não foi encontrada. Verifique a sua URI");
     res.status(rs.statusCode).json(rs)
