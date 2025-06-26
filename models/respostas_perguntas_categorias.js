@@ -49,6 +49,27 @@ module.exports.getRespostasCategoriazadas = async function(pagina, limite, respo
 }
 
 
+module.exports.getRespostasCategoriazadasPoResposta = async function(id_resposta) {
+  try {
+
+      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
+      const [reposta_pergunta_categoria] = await database('reposta_pergunta_categoria')
+      .join('perguntas_categorias',"perguntas_categorias.id_pergunta","=","reposta_pergunta_categoria.pergunta_id")
+      .where({id_resposta})
+    
+      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, reposta_pergunta_categoria || {});          
+      return rs
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
 module.exports.getRespostasCategoriazadasPoPergunta = async function(pergunta_id) {
   try {
 
@@ -56,6 +77,28 @@ module.exports.getRespostasCategoriazadasPoPergunta = async function(pergunta_id
       const reposta_pergunta_categoria = await database('reposta_pergunta_categoria')
       .join('perguntas_categorias',"perguntas_categorias.id_pergunta","=","reposta_pergunta_categoria.pergunta_id")
       .where({pergunta_id})
+    
+      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, reposta_pergunta_categoria);          
+      return rs
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.getRespostasCategoriazadasPoPerguntaECategoria = async function(pergunta_id, categoria_da_pergunta) {
+  try {
+
+      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
+      const reposta_pergunta_categoria = await database('reposta_pergunta_categoria')
+      .join('perguntas_categorias',"perguntas_categorias.id_pergunta","=","reposta_pergunta_categoria.pergunta_id")
+      .where({pergunta_id})
+      .andWhere({categoria_da_pergunta})
     
       logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, reposta_pergunta_categoria);          
@@ -90,6 +133,18 @@ module.exports.postRespostasCategoriazadas = async function(dados, req) {
       .andWhere({pergunta_id: dados?.pergunta_id})
       
       if(resultEnt.length > 0 ){
+        logger("SERVIDOR:postClientes").info(`resposta já configurada para a pergunta`)
+        const rs = response("erro", 409, "resposta já configurada para a pergunta");
+        return rs
+      }
+      
+      const resultPergunta  = await database('reposta_pergunta_categoria')
+      .where({resposta: dados?.resposta})
+      .andWhere({nivel_de_aceitacao: dados?.nivel_de_aceitacao})
+      .andWhere({pergunta_id: dados?.pergunta_id})
+      .andWhere({categoria_da_pergunta: dados?.categoria_da_pergunta})
+      
+      if(resultPergunta.length > 0 ){
         logger("SERVIDOR:postClientes").info(`resposta já configurada para a pergunta`)
         const rs = response("erro", 409, "resposta já configurada para a pergunta");
         return rs

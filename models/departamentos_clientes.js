@@ -96,8 +96,8 @@ module.exports.postDepartamentosClientes = async function(dados, req) {
       .where({id_clientes: dados?.empresa_dona})
       
       if(!clientes.length){
-        logger("SERVIDOR:postClientes").info(`Registro de empresa ou clienete não foram encontrados`)
-        const rs = response("erro", 409, "Registro de empresa ou clienete não foram encontrados");
+        logger("SERVIDOR:postClientes").info(`Registro de empresa ou cliente não foram encontrados`)
+        const rs = response("erro", 409, "Registro de empresa ou cliente não foram encontrados");
         return rs
       }
       
