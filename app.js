@@ -12,6 +12,7 @@ const {fileUploadApp, rateLimiter, redirectURL, tokenApp, debugSentry, errorDisp
 
 // Importe de rotas
 const apetiteRouter = require("./routes/apetite_ao_risco");
+const apresentacaoClienteRouter = require("./routes/apresentacao_cliente");
 const categoriaAoRistRouter = require("./routes/categoria_de_risco");
 const clientesRouter = require("./routes/clientes");
 const colaboradoresDeConsentimentoRouter = require("./routes/colaboradores_de_consentimento");
@@ -58,6 +59,7 @@ app.use(validadeTokenApp);
 
 app.get("/v1/", responseIndex);
 app.use("/v1/apetite-ao-risco", apetiteRouter);
+app.use("/v1/apresentacao-cliente", apresentacaoClienteRouter);
 app.use("/v1/categoria-ao-risco", categoriaAoRistRouter);
 app.use("/v1/clientes", clientesRouter);
 app.use("/v1/colaboradores-de-consentimentos", colaboradoresDeConsentimentoRouter);

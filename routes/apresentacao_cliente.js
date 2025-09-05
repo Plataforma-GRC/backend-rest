@@ -1,26 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/categoria_de_risco'); 
+const controller = require('../controllers/apresentacao_cliente'); 
 
 
 /* GET clientes listing. */
-router.get('/', controller.getCategoriaAoRisco); 
+router.get('/', controller.getApresentacaoCliente); 
 
-router.get('/:id_categoria_de_risco', controller.getCategoriaAoRiscoId);
+router.get('/:id_apresenta', controller.getApresentacaoClienteId);
 
-router.get('/cliente/:cliente_categorizado', controller.getClientesCategoriaAoRisco);
+router.get('/cliente/:cliente_apresentado', controller.getClientesApresentacaoCliente);
 
 /* POST clientes listing. */
 
-router.post('/', controller.postCategoriaAoRisco);
+router.post('/', controller.postApresentacaoCliente);
 
 /* PATCH clientes listing. */
 
-router.patch('/:id_categoria_de_risco', controller.patchCategoriaAoRisco)
+router.patch('/:id_apresenta', controller.patchApresentacaoCliente)
 
 /* DELETE clientes listing. */
 
-router.delete('/:id_categoria_de_risco', controller.deleteCategoriaAoRisco)
+router.delete('/:id_apresenta', controller.deleteApresentacaoCliente)
 
 
 module.exports = router;  

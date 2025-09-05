@@ -6,36 +6,37 @@ const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getCategoriaAoRisco = async function(pagina, limite, categoria_risco, materialidade, cliente_categorizado) {
+module.exports.getApresentacaoCliente = async function(pagina, limite, missao, visao, valores, cliente_apresentado) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
 
-      const clientes = await database('categoria_de_risco')
-      .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
-      .whereLike("categoria_risco",`%${categoria_risco}%`)
-      .whereLike("materialidade",`%${materialidade}%`)
-      .whereLike("cliente_categorizado",`%${cliente_categorizado}%`)
-      .orderBy('id_categoria_de_risco','DESC')
+      const clientes = await database('apresentacao_cliente')
+      .whereLike("missao",`%${missao}%`)
+      .whereLike("visao",`%${visao}%`)
+      .whereLike("valores",`%${valores}%`)
+      .whereLike("cliente_apresentado",`%${cliente_apresentado}%`)
+      .orderBy('id_apresenta','DESC')
 
       const {registros} = paginationRecords(clientes, pagina, limite)
 
       logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('categoria_de_risco')
-      .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
-      .whereLike("categoria_risco",`%${categoria_risco}%`)
-      .whereLike("materialidade",`%${materialidade}%`)
-      .whereLike("cliente_categorizado",`%${cliente_categorizado}%`)
+      const clientesLimite = await database('apresentacao_cliente')
+      .whereLike("missao",`%${missao}%`)
+      .whereLike("visao",`%${visao}%`)
+      .whereLike("valores",`%${valores}%`)
+      .whereLike("cliente_apresentado",`%${cliente_apresentado}%`)
       .limit(registros.limite)
       .offset(registros.count)
-      .orderBy('id_categoria_de_risco','DESC')
+      .orderBy('id_apresenta','DESC')
 
       const filtered = clientesTruesFilteres(clientesLimite)
 
       registros.total_apresentados = clientesLimite.length
-      registros.categoria_risco = categoria_risco
-      registros.materialidade = materialidade
-      registros.cliente_categorizado = cliente_categorizado
+      registros.missao = missao
+      registros.visao = visao
+      registros.valores = valores
+      registros.cliente_apresentado = cliente_apresentado
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered, "json", { registros });
@@ -51,16 +52,15 @@ module.exports.getCategoriaAoRisco = async function(pagina, limite, categoria_ri
     
 }
 
-module.exports.getCategoriaAoRiscoId = async function(id_categoria_de_risco) {
+module.exports.getApresentacaoClienteId = async function(id_apresenta) {
   try {
 
       logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
-      const [categoria_de_risco] = await database('categoria_de_risco')
-      .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
-      .where({id_categoria_de_risco})
+      const [apresentacao_cliente] = await database('apresentacao_cliente')
+      .where({id_apresenta})
     
       logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, categoria_de_risco || {});          
+      const rs = response("sucesso", 200, apresentacao_cliente || {});          
       return rs
 
   } catch (erro) {
@@ -72,17 +72,16 @@ module.exports.getCategoriaAoRiscoId = async function(id_categoria_de_risco) {
     
 }
 
-module.exports.getClientesCategoriaAoRisco = async function(cliente_categorizado) {
+module.exports.getClientesApresentacaoCliente = async function(cliente_apresentado) {
   try {
 
       logger("SERVIDOR:getClientesEntidade").debug("Á buscar os dados")
-      const categoria_de_risco = await database('categoria_de_risco')
-      .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
-      .where({cliente_categorizado})
-      .orderBy('id_categoria_de_risco','DESC')  
+      const apresentacao_cliente = await database('apresentacao_cliente')
+      .where({cliente_apresentado})
+      .orderBy('id_apresenta','DESC')  
     
       logger("SERVIDOR:getClientesEntidade").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, categoria_de_risco, "json");          
+      const rs = response("sucesso", 200, apresentacao_cliente, "json");          
       return rs
 
   } catch (erro) {
@@ -94,14 +93,14 @@ module.exports.getClientesCategoriaAoRisco = async function(cliente_categorizado
     
 }
 
-module.exports.postCategoriaAoRisco = async function(dados, req) {
+module.exports.postApresentacaoCliente = async function(dados, req) {
 
     try {
 
       logger("SERVIDOR:postClientes").debug(`Verificar o cliente por email`)
       
       const resultCliente  = await database('clientes')
-      .where({id_clientes: dados?.cliente_categorizado})
+      .where({id_clientes: dados?.cliente_apresentado})
       
       if(!resultCliente.length){
         logger("SERVIDOR:postClientes").info(`Cliente Inexistente`)
@@ -109,9 +108,11 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
         return rs
       }
       
-      const resultEnt  = await database('categoria_de_risco')
-      .where({cliente_categorizado: dados?.cliente_categorizado})
-      .andWhere({categoria_risco: dados?.categoria_risco})
+      const resultEnt  = await database('apresentacao_cliente')
+      .where({cliente_apresentado: dados?.cliente_apresentado})
+      .andWhere({missao: dados?.missao})
+      .andWhere({visao: dados?.visao})
+      .andWhere({valores: dados?.valores})
       
       if(resultEnt.length > 0 ){
         logger("SERVIDOR:postClientes").info(`Configuração usada`)
@@ -120,10 +121,10 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
       }
       
       
-      await database('categoria_de_risco').insert(dados)
+      await database('apresentacao_cliente').insert(dados)
       
-      logger("SERVIDOR:Clientes").info(`Entidade criada com sucesso`)
-      const rs = response("sucesso", 201, "Entidade criada com sucesso","json",{
+      logger("SERVIDOR:Clientes").info(`Parametrização criada com sucesso`)
+      const rs = response("sucesso", 201, "Parametrização criada com sucesso","json",{
         info: dados
       });
 
@@ -139,24 +140,24 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
 }
 
 
-module.exports.patchCategoriaAoRisco = async function(id_categoria_de_risco, dados, req) { 
+module.exports.patchApresentacaoCliente = async function(id_apresenta, dados, req) { 
 
   try {
 
     logger("SERVIDOR:patchClientes").debug(`Verificar se é um  cliente do serviço GPO`)
-    const catergoriaVerify = await database('categoria_de_risco').where({id_categoria_de_risco})
+    const catergoriaVerify = await database('apresentacao_cliente').where({id_apresenta})
 
     if(!catergoriaVerify.length){
-      logger("SERVIDOR:patchClientes").info("categoria ao risco configurado não foi encontrado")
-      const rs = response("erro", 409, "categoria ao risco configurado não foi encontrado");
+      logger("SERVIDOR:patchClientes").info("Parametrização  configurado não foi encontrado")
+      const rs = response("erro", 409, "Parametrização  configurado não foi encontrado");
       return rs    
     }
     
     logger("SERVIDOR:patchClientes").debug(`Actualizado o cliente`)
-    await database('categoria_de_risco').where({id_categoria_de_risco}).update({...dados})
+    await database('apresentacao_cliente').where({id_apresenta}).update({...dados})
 
-    logger("SERVIDOR:patchClientes").info(`categoria ao risco actualizado com sucesso`)
-    const rs = response("sucesso", 202, "categoria ao risco actualizado com sucesso");
+    logger("SERVIDOR:patchClientes").info(`Parametrização  actualizada com sucesso`)
+    const rs = response("sucesso", 202, "Parametrização  actualizada com sucesso");
     return rs
     
   } catch (erro) {
@@ -168,23 +169,23 @@ module.exports.patchCategoriaAoRisco = async function(id_categoria_de_risco, dad
     
 }
 
-module.exports.deleteCategoriaAoRisco = async function(id_categoria_de_risco, req) { 
+module.exports.deleteApresentacaoCliente = async function(id_apresenta, req) { 
   try {
 
       logger("SERVIDOR:deleteClientes").debug(`Verificar se o clientes é do serviço GPO`)
-      const catergoriaVerify = await database('categoria_de_risco').where({id_categoria_de_risco})
+      const catergoriaVerify = await database('apresentacao_cliente').where({id_apresenta})
 
       if(!catergoriaVerify.length){
-        logger("SERVIDOR:patchClientes").info("catergoria ao risco configurado não foi encontrado")
-        const rs = response("erro", 409, "catergoria ao risco configurado não foi encontrado");
+        logger("SERVIDOR:patchClientes").info("Parametrização  configurada não foi encontrado")
+        const rs = response("erro", 409, "Parametrização  configurada não foi encontrado");
         return rs    
       }
 
       logger("SERVIDOR:deleteClientes").debug(`Á apagar o cliente`)
-      await database('categoria_de_risco').where({id_categoria_de_risco}).del() 
+      await database('apresentacao_cliente').where({id_apresenta}).del() 
 
-      logger("SERVIDOR:deleteClientes").info("Categoria ao risco exluido com sucesso")
-      const rs = response("sucesso", 202, "Categoria ao risco exluido com sucesso");
+      logger("SERVIDOR:deleteClientes").info("Parametrização  exluido com sucesso")
+      const rs = response("sucesso", 202, "Parametrização  exluido com sucesso");
       return rs
 
   } catch (erro) {

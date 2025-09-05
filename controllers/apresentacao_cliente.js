@@ -1,15 +1,15 @@
-const models = require('../models/categoria_de_risco')
+const models = require('../models/apresentacao_cliente')
 const response = require("../constants/response");
 const yup = require('yup')
 const logger = require('../services/loggerService'); 
 const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservices"); 
 
 
-module.exports.getCategoriaAoRisco = async function(req, res, next) {
+module.exports.getApresentacaoCliente = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, categoria_risco = '', materialidade = '', cliente_categorizado = ''} = req.query
-      const results = await models.getCategoriaAoRisco(pagina, limite, categoria_risco, materialidade, cliente_categorizado); 
+      const {pagina, limite, missao = '', visao = '', valores = '', cliente_apresentado = ''} = req.query
+      const results = await models.getApresentacaoCliente(pagina, limite, missao, visao, valores, cliente_apresentado); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -21,13 +21,13 @@ module.exports.getCategoriaAoRisco = async function(req, res, next) {
     
 }
 
-module.exports.getCategoriaAoRiscoId = async function(req, res, next) {
+module.exports.getApresentacaoClienteId = async function(req, res, next) {
   try{
 
     logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
-    const {id_categoria_de_risco} = req.params
+    const {id_apresenta} = req.params
 
-    const results = await models.getCategoriaAoRiscoId(id_categoria_de_risco);
+    const results = await models.getApresentacaoClienteId(id_apresenta);
     res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -39,10 +39,10 @@ module.exports.getCategoriaAoRiscoId = async function(req, res, next) {
     
 }
 
-module.exports.getClientesCategoriaAoRisco = async function(req, res, next) {
+module.exports.getClientesApresentacaoCliente = async function(req, res, next) {
   try{
-    const {cliente_categorizado} = req.params
-    const results = await models.getClientesCategoriaAoRisco(cliente_categorizado)
+    const {cliente_apresentado} = req.params
+    const results = await models.getClientesApresentacaoCliente(cliente_apresentado)
     res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -53,7 +53,7 @@ module.exports.getClientesCategoriaAoRisco = async function(req, res, next) {
     
 }
 
-module.exports.postCategoriaAoRisco = async function(req, res, next) { 
+module.exports.postApresentacaoCliente = async function(req, res, next) { 
     
    try {
 
@@ -61,16 +61,17 @@ module.exports.postCategoriaAoRisco = async function(req, res, next) {
 
       const dados =  req.body
 
-      const schemaCategoriaAoRisco = yup.object().shape({
-        categoria_risco: yup.number().required(),
-        materialidade: yup.string().required(),
-        cliente_categorizado: yup.number().required()
+      const schemaApresentacaoCliente = yup.object().shape({
+        missao: yup.string().required(),
+        visao: yup.string().required(),
+        valores: yup.string().required(),
+        cliente_apresentado: yup.number().required()
       })
 
       logger("SERVIDOR:postClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
-      const validar = await schemaCategoriaAoRisco.validate(dados)
+      const validar = await schemaApresentacaoCliente.validate(dados)
       
-      const result = await models.postCategoriaAoRisco(validar, req)  
+      const result = await models.postApresentacaoCliente(validar, req)  
       
       var wk = result.webhook
       var lg = result.logs
@@ -102,23 +103,24 @@ module.exports.postCategoriaAoRisco = async function(req, res, next) {
     
 }
 
-module.exports.patchCategoriaAoRisco = async function(req, res, next) { 
+module.exports.patchApresentacaoCliente = async function(req, res, next) { 
       try {
 
         logger("SERVIDOR:patchClientes").info(`Iniciando actualização do cliente`)
-        const {id_categoria_de_risco} = req.params
+        const {id_apresenta} = req.params
         const dados = req.body
 
-        const schemaCategoriaAoRisco = yup.object().shape({
-          categoria_risco: yup.number(),
-          materialidade: yup.string(),
-          cliente_categorizado: yup.number()
+        const schemaApresentacaoCliente = yup.object().shape({
+          missao: yup.string(),
+          visao: yup.string(),
+          valores: yup.string(),
+          cliente_apresentado: yup.number()
         })
 
         logger("SERVIDOR:patchClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
-        const validar = await schemaCategoriaAoRisco.validate(dados)
+        const validar = await schemaApresentacaoCliente.validate(dados)
 
-        const result = await models.patchCategoriaAoRisco(id_categoria_de_risco, validar, req)
+        const result = await models.patchApresentacaoCliente(id_apresenta, validar, req)
 
         var wk = result.webhook
         var lg = result.logs
@@ -152,12 +154,12 @@ module.exports.patchCategoriaAoRisco = async function(req, res, next) {
     
 }
 
-module.exports.deleteCategoriaAoRisco = async function(req, res, next) {
+module.exports.deleteApresentacaoCliente = async function(req, res, next) {
   try {
 
       logger("SERVIDOR:deleteClientes").info(`Iniciando a exlusão do cliente`)
-      const {id_categoria_de_risco} = req.params
-      const result = await models.deleteCategoriaAoRisco(id_categoria_de_risco, req)
+      const {id_apresenta} = req.params
+      const result = await models.deleteApresentacaoCliente(id_apresenta, req)
 
       var wk = result.webhook
       var lg = result.logs
