@@ -96,7 +96,7 @@ module.exports.recuperarSenha = async function(req, res, next) {
     const {email, canal} = req.body
 
     const schemaRecuperarSenha = yup.object().shape({
-      email: yup.string().required(),
+      email: yup.string().min(4).required(),
       canal: yup.mixed().oneOf(['Whatsapp', 'E-mail', 'SMS']).required(), 
     })
 
@@ -140,7 +140,7 @@ module.exports.redifinirSenha = async function(req, res, next) {
 
     const schemaRedifinirSenha = yup.object().shape({
       codigo_seguranca: yup.string().min(4).required(),
-      entidade: yup.string().min(5).required(), 
+      entidade: yup.string().min(1).required(), 
     })
 
     logger("SERVIDOR:redifinirSenha").debug(`Á validar os dados ${JSON.stringify(dados)}`)
@@ -640,6 +640,75 @@ module.exports.patchClientesVerificarSenhaActual = async function(req, res, next
       } catch (error) {
         console.error(error.message)
         logger("SERVIDOR:patchClientesVerificarSenhaActual").error(`Erro ao verificar da senha actual ${error.message}`)
+
+        if(error?.path){
+          const rs = response("erro", 412, error.message);
+          res.status(rs.statusCode).json(rs)        
+        }else{  
+          const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+          res.status(rs.statusCode).json(rs)
+        }
+      }
+    
+}
+
+module.exports.patchClientesAlterarSenha = async function(req, res, next) { 
+      try {
+
+        logger("SERVIDOR:patchClientesAlterarSenha").info(`Iniciando actualização da senha padrão`)
+        const {entidade} = req.params
+        const dados = req.body
+
+        const schemaEntidades = yup.object().shape({
+          senha_actual: yup.string().required(),
+          senha: yup.string().required(),
+          confirmar_senha: yup.string().oneOf([yup.ref("senha")]).required()
+        })
+
+        logger("SERVIDOR:patchClientesRedifinirSenha").debug(`Á validar os dados ${JSON.stringify(dados)}`)
+        const validar = await schemaEntidades.validate(dados)
+        
+        if(Object.keys(dados).includes('senha')){          
+
+          logger("SERVIDOR:patchClientesRedifinirSenha").debug(`Fortificando a senha`)
+          const passCheck = await StrengthSchecker(validar?.senha)
+          
+          if(passCheck.bg === "error"){
+
+            logger("SERVIDOR:patchClientesRedifinirSenha").info(`Senha para o cliente é muito fraca`)         
+            const rs = response("erro", 406, "Senha para o cliente é muito fraca");
+            res.status(rs.statusCode).json(rs)         
+  
+            return
+          }
+
+          var salt = bcrypt.genSaltSync(10);
+          var hash = bcrypt.hashSync(validar.senha, salt);
+          dados.senha = hash
+
+        }
+        
+        delete validar.confirmar_senha        
+        const result = await models.patchClientesAlterarSenha(entidade, validar.senha_actual, validar.senha, req)
+
+        var wk = result.webhook
+        var lg = result.logs
+        var nt = result.notification
+        
+        delete result.webhook
+        delete result.logs
+        delete result.notification
+        
+        res.status(result.statusCode).json(result)
+
+        if(result.status == "sucesso"){
+          sendRequestOnMicroservices({lg, nt, wk})
+        }
+        
+
+      } catch (error) {
+        console.error(error.message)
+        logger("SERVIDOR:patchClientesAlterarSenha").error(`Erro ao verificar da senha actual ${error.message}`)
 
         if(error?.path){
           const rs = response("erro", 412, error.message);

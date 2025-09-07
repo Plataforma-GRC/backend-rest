@@ -24,9 +24,9 @@ router.post('/logout', controller.logoutClientes);
 
 router.post('/comunicar-por-email', controller.comunicarEmail); 
 
-router.post('/codigo-seguranca/recuperar', controller.recuperarSenha);
+router.post('/codigo-seguranca/pedir', controller.recuperarSenha);
 
-router.post('/codigo-seguranca/redifinir', controller.redifinirSenha);
+router.post('/codigo-seguranca/autenticar', controller.redifinirSenha);
 
 /* PATCH clientes listing. */
 
@@ -37,6 +37,8 @@ router.patch('/:entidade/redifinir-senha', controller.patchClientesRedifinirSenh
 router.patch('/:entidade/trocar-senha-padrao', controller.patchClientesTrocarSenhaPadrao);
 
 router.patch('/:entidade/verificar-senha-actual', controller.patchClientesVerificarSenhaActual);
+
+router.patch('/:entidade/alterar-senha', controller.patchClientesAlterarSenha);
 
 router.patch('/mudar/foto/:entidade', controller.mudarFotoClientes);
 

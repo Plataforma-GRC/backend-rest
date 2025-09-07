@@ -83,14 +83,14 @@ module.exports.getClientesID = async function(id_clientes) {
     
 }
 
-module.exports.getClientesEntidade = async function(numero_entidade) {
+module.exports.getClientesEntidade = async function(id_clientes) {
   try {
 
       logger("SERVIDOR:getClientesEntidade").debug("Á buscar os dados")
       const clientes = await database('clientes')
       .join('usuarios',"usuarios.id_usuarios","=","clientes.criado_por")
-      .join('configuracoes',"configuracoes.cliente_entidade","=","clientes.numero_entidade")
-      .where({numero_entidade})
+      .join('configuracoes',"configuracoes.cliente","=","clientes.id_clientes")
+      .where({id_clientes})
       .orderBy('id_clientes','DESC')  
     
       logger("SERVIDOR:getClientesEntidade").info("Respondeu a solicitação")
@@ -161,7 +161,7 @@ module.exports.getClientesEmail = async function(email) {
       logger("SERVIDOR:ClientesEmail").debug("Verificar se existencia do cliente")
       const clientes = await database('clientes')
       .join('usuarios',"usuarios.id_usuarios","=","clientes.criado_por")
-      .join('configuracoes',"configuracoes.cliente_entidade","=","clientes.numero_entidade")
+      .join('configuracoes',"configuracoes.cliente","=","clientes.id_clientes")
       .where({email})
       .orderBy('id_clientes','DESC')
     
@@ -183,13 +183,12 @@ module.exports.recuperarSenha = async function(email, canal, req) {
 
     logger("SERVIDOR:recuperarSenha").debug(`Verificar a existencia do cliente pelo email ${email}`)
     const clientes = await database('clientes')
-    .join('usuarios',"usuarios.id_usuarios","=","clientes.criado_por")
     .where({email})
     .orWhere({contacto: email})
     .orderBy('id_clientes','DESC')
     
-    logger("SERVIDOR:recuperarSenha").debug(`Gerando um codigo de 4 digitos`)
-    let codigo_seguranca = `${Math.round(Math.random() * 9)}${Math.round(Math.random() * 9)}${Math.round(Math.random() * 9)}${Math.round(Math.random() * 9)}`
+    logger("SERVIDOR:recuperarSenha").debug(`Gerando um codigo de 6 digitos`)
+    let codigo_seguranca = `${Math.random()}`.replace(".","").substring(1,7)
     
     var now = new Date();
     var time = now.getTime();
@@ -205,19 +204,19 @@ module.exports.recuperarSenha = async function(email, canal, req) {
       
       logger("SERVIDOR:recuperarSenha").debug(`Gerar outro codigo`)
       while(codigounico.length > 0) {
-          codigo_seguranca = `${Math.round(Math.random() * 9)}${Math.round(Math.random() * 9)}${Math.round(Math.random() * 9)}${Math.round(Math.random() * 9)}`
+          codigo_seguranca = `${Math.random()}`.replace(".","").substring(1,7)
       }
       
       logger("SERVIDOR:recuperarSenha").debug(`Actualizando e gravando na base de dados`)
-      await database('configuracoes').where({cliente_entidade: clientes[0].numero_entidade}).update({codigo_seguranca, tempo_de_vida_codigo_seguranca})
+      await database('configuracoes').where({cliente: clientes[0].id_clientes}).update({codigo_seguranca, tempo_de_vida_codigo_seguranca})
       
       
         if(canal === "Whatsapp") {
             logger("SERVIDOR:recuperarSenha").info(`Enviamos um codigo de segurança para o seu ${canal}. Por favor verifique`)
             const rs = response("sucesso", 202, `Enviamos um codigo de segurança para o seu ${canal}. Por favor verifique`, 'json',{
-              notification: {efeito: {contacto: clientes[0].contacto, numero_entidade: clientes[0].numero_entidade, email: clientes[0].email, codigo_seguranca }, para:"codigoSeguranca", mensagem: 'null', canal:"whatsapp"},
-              info: {entidade:clientes[0].numero_entidade, tempo_de_vida_codigo_seguranca},
-              logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "SENDSECURITYCODE" , tabela: "CLIENTES", informacao: {email, tempo_de_vida_codigo_seguranca, codigo_seguranca, canal}, entidade: clientes[0].numero_entidade}
+              notification: {efeito: {contacto: clientes[0].contacto, id_clientes: clientes[0].id_clientes, email: clientes[0].email, codigo_seguranca }, para:"codigoSeguranca", mensagem: 'null', canal:"whatsapp"},
+              info: {entidade:clientes[0].id_clientes, tempo_de_vida_codigo_seguranca, email: clientes[0].email},
+              logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "SENDSECURITYCODE" , tabela: "CLIENTES", informacao: {email, tempo_de_vida_codigo_seguranca, codigo_seguranca, canal}, entidade: clientes[0].id_clientes}
             });
             return rs
         }
@@ -226,8 +225,8 @@ module.exports.recuperarSenha = async function(email, canal, req) {
             logger("SERVIDOR:recuperarSenha").info(`Enviamos um codigo de segurança para o seu ${canal}. Por favor verifique`)
             const rs = response("sucesso", 202, `Enviamos um codigo de segurança para o seu ${canal}. Por favor verifique`, 'json',{
               notification: {efeito: {empresa: clientes[0].nome_empresa, email, codigo_seguranca }, para:"codigoSeguranca", mensagem: 'null', canal:"email"},
-              info: {entidade:clientes[0].numero_entidade, tempo_de_vida_codigo_seguranca},
-              logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "SENDSECURITYCODE" , tabela: "CLIENTES", informacao: {email, tempo_de_vida_codigo_seguranca, codigo_seguranca, canal}, entidade: clientes[0].numero_entidade}
+              info: {entidade:clientes[0].id_clientes, tempo_de_vida_codigo_seguranca, email: clientes[0].email},
+              logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "SENDSECURITYCODE" , tabela: "CLIENTES", informacao: {email, tempo_de_vida_codigo_seguranca, codigo_seguranca, canal}, entidade: clientes[0].id_clientes}
             });
             return rs
         }
@@ -237,8 +236,8 @@ module.exports.recuperarSenha = async function(email, canal, req) {
             const mensagem = `Caro(a) cliente, realizou em pedido de alteração de sua senha. O codigo é:  ${codigo_seguranca}`;
             const rs = response("sucesso", 202, `Enviamos um codigo de segurança para o seu ${canal}. Por favor verifique`, 'json',{
               notification: {efeito: {...clientes[0]}, para:"RECUPERACAO", mensagem, canal:"sms"},
-              info: {entidade:clientes[0].numero_entidade, tempo_de_vida_codigo_seguranca},
-              logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "SENDSECURITYCODE" , tabela: "CLIENTES", informacao: {email, tempo_de_vida_codigo_seguranca, codigo_seguranca, canal}, entidade: clientes[0].numero_entidade}
+              info: {entidade:clientes[0].id_clientes, tempo_de_vida_codigo_seguranca, email: clientes[0].email},
+              logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "SENDSECURITYCODE" , tabela: "CLIENTES", informacao: {email, tempo_de_vida_codigo_seguranca, codigo_seguranca, canal}, entidade: clientes[0].id_clientes}
             });
             return rs
         }
@@ -270,7 +269,7 @@ module.exports.redifinirSenha = async function(codigo_seguranca, entidade, req) 
   try {
 
     logger("SERVIDOR:redifinirSenha").debug(`Verificar o codigo de segurança`)
-    const codigo = await database('configuracoes').where({codigo_seguranca}).andWhere({cliente_entidade: entidade})
+    const codigo = await database('configuracoes').where({codigo_seguranca}).andWhere({cliente: entidade})
     
     if(codigo.length > 0) {
     
@@ -286,14 +285,14 @@ module.exports.redifinirSenha = async function(codigo_seguranca, entidade, req) 
       }
       
       logger("SERVIDOR:redifinirSenha").debug(`Buscar dado recente do cliente na base de dados`)
-      const cliente = await database('clientes').where({numero_entidade: entidade}).orderBy('id_clientes','DESC')
+      const cliente = await database('clientes').where({id_clientes: entidade}).orderBy('id_clientes','DESC')
 
       logger("SERVIDOR:redifinirSenha").debug(`Actualizar o codigo de segurança para 0000`)
-      await database('configuracoes').andWhere({cliente_entidade: entidade}).update({codigo_seguranca:"0000"}) 
+      await database('configuracoes').andWhere({cliente: entidade}).update({codigo_seguranca:"0000"}) 
       
       if(codigo_seguranca != "0000"){
         logger("SERVIDOR:redifinirSenha").debug(`Actualizar e resetar as ${process.env.LIMITE_TENTATIVAS_LOGIN} tentativas`)
-        await database('configuracoes').where({cliente_entidade: cliente[0].numero_entidade}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
+        await database('configuracoes').where({cliente: cliente[0].id_clientes}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
 
         logger("SERVIDOR:redifinirSenha").info(`Codigo de segurança verificado`)
         const rs = response("sucesso", 202, 'Codigo de segurança verificado!','json',{
@@ -361,13 +360,32 @@ module.exports.postClientes = async function(dados, req) {
       if(dados?.nif) {
         await database('clientes').insert({...dados, nome_empresa: dados.nome_empresa.toUpperCase()})
       }
-      else if(dados?.numero_entidade){    
+      else if(dados?.id_clientes){    
         await database('clientes').insert({...dados, nome_empresa: dados.nome_empresa.toUpperCase()})
       }
+
+      const codigo_confirmacao = String(Math.random()).replaceAll(".","").substr(0,6);
+      await database("configuracoes").where({email_cliente: dados.email}).update({codigo_confirmacao})
+
+      const notification = {
+            mensagem: "yup.string().required()",
+            para: "confirmacaoDeConta",
+            efeito: { 
+              empresa: dados.nome_empresa, 
+              email: dados.email, 
+              codigo_seguranca: codigo_confirmacao
+            }, 
+            informacao: {}, 
+            canal: 'email',
+            opcional: 'email'
+        }
+
+      delete dados.senha
       
       logger("SERVIDOR:Clientes").info(`Entidade criada com sucesso`)
       const rs = response("sucesso", 201, "Entidade criada com sucesso","json",{
-        info: dados
+        info: dados,
+        notification
       });
 
       return rs
@@ -570,11 +588,11 @@ module.exports.patchClientes = async function(id_clientes, dados, req) {
     
 }
 
-module.exports.patchClientesRedifinirSenha = async function(numero_entidade, dados, req) { 
+module.exports.patchClientesRedifinirSenha = async function(id_clientes, dados, req) { 
   try {
 
       logger("SERVIDOR:patchClientesRedifinirSenha").debug(`Verificar se é um  cliente do serviço GPO`)
-      const clienteVerify = await database('clientes').where({numero_entidade}).orWhere({gpo_numero_comerciante: numero_entidade})
+      const clienteVerify = await database('clientes').where({id_clientes})
       let entidade = ""
 
       if(!clienteVerify.length){
@@ -585,17 +603,16 @@ module.exports.patchClientesRedifinirSenha = async function(numero_entidade, dad
 
       if(clienteVerify.length){
         id_clientes = clienteVerify[0].id_clientes
-        entidade = clienteVerify[0].numero_entidade
+        entidade = clienteVerify[0].id_clientes
       }
 
-      const actualizado_em = new Date().toISOString().replace('T',' ').substr(0,19)
+      const cliente_update = new Date().toISOString().replace('T',' ').substr(0,19)
       
       logger("SERVIDOR:patchClientesRedifinirSenha").debug(`Actualizado o cliente`)
-      await database('clientes').where({numero_entidade}).update({...dados, novo_cliente: "0", actualizado_em})
+      await database('clientes').where({id_clientes}).update({...dados, novo_cliente: "0", cliente_update})
 
       logger("SERVIDOR:patchClientesRedifinirSenha").info(`Palavra-passe do cliente actualizada com sucesso`)
       const rs = response("sucesso", 202, "Palavra-passe do cliente actualizada com sucesso", "json", {
-        entidadeGPO: clienteVerify[0]?.gpo_numero_comerciante,
         logs: req && {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "CLIENTES", informacao: {...dados, id_clientes}, entidade: "01157"}
       });
       return rs
@@ -609,11 +626,11 @@ module.exports.patchClientesRedifinirSenha = async function(numero_entidade, dad
     
 }
 
-module.exports.patchClientesTrocarSenhaPadrao = async function(numero_entidade, dados, req) { 
+module.exports.patchClientesTrocarSenhaPadrao = async function(id_clientes, dados, req) { 
   try {
 
       logger("SERVIDOR:patchClientesTrocarSenhaPadrao").debug(`Verificar se é um  cliente do serviço GPO`)
-      const clienteVerify = await database('clientes').where({numero_entidade}).orWhere({gpo_numero_comerciante: numero_entidade})
+      const clienteVerify = await database('clientes').where({id_clientes})
       let entidade = ""
 
       if(!clienteVerify.length){
@@ -624,18 +641,17 @@ module.exports.patchClientesTrocarSenhaPadrao = async function(numero_entidade, 
 
       if(clienteVerify.length){
         id_clientes = clienteVerify[0].id_clientes
-        entidade = clienteVerify[0].numero_entidade
+        entidade = clienteVerify[0].id_clientes
       }
 
 
-      const actualizado_em = new Date().toISOString().replace('T',' ').substr(0,19)
+      const cliente_update = new Date().toISOString().replace('T',' ').substr(0,19)
       
       logger("SERVIDOR:patchClientesTrocarSenhaPadrao").debug(`Actualizado o cliente`)
-      await database('clientes').where({numero_entidade}).update({...dados, novo_cliente: "0", actualizado_em})
+      await database('clientes').where({id_clientes}).update({...dados, novo_cliente: "0", cliente_update})
 
       logger("SERVIDOR:patchClientesTrocarSenhaPadrao").info(`Palavra-passe padrão do cliente actualizada com sucesso`)
       const rs = response("sucesso", 202, "Palavra-passe padrão do cliente actualizada com sucesso", "json", {
-        entidadeGPO: clienteVerify[0]?.gpo_numero_comerciante,
         logs: req && {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "CLIENTES", informacao: {...dados, id_clientes}, entidade: "01157"}
       });
       return rs
@@ -649,11 +665,11 @@ module.exports.patchClientesTrocarSenhaPadrao = async function(numero_entidade, 
     
 }
 
-module.exports.patchClientesVerificarSenhaActual = async function(numero_entidade, senha_actual, req) { 
+module.exports.patchClientesVerificarSenhaActual = async function(id_clientes, senha_actual, req) { 
   try {
 
       logger("SERVIDOR:patchClientesVerificarSenhaActual").debug(`Verificar se é um  cliente do serviço GPO`)
-      const clienteVerify = await database('clientes').where({numero_entidade}).orWhere({gpo_numero_comerciante: numero_entidade})
+      const clienteVerify = await database('clientes').where({id_clientes})
       let entidade = ""
 
       if(!clienteVerify.length){
@@ -664,7 +680,7 @@ module.exports.patchClientesVerificarSenhaActual = async function(numero_entidad
 
       if(clienteVerify.length){
         id_clientes = clienteVerify[0].id_clientes
-        entidade = clienteVerify[0].numero_entidade
+        entidade = clienteVerify[0].id_clientes
       }
 
       if(bcrypt.compareSync(senha_actual, clienteVerify[0].senha)){
@@ -690,12 +706,58 @@ module.exports.patchClientesVerificarSenhaActual = async function(numero_entidad
     
 }
 
-module.exports.patchClientesFoto = async function(numero_entidade, dados, req) {
+module.exports.patchClientesAlterarSenha = async function(id_clientes, senha_actual, senha, req) { 
+  try {
+
+      logger("SERVIDOR:patchClientesAlterarSenha").debug(`Verificar se é um  cliente do serviço GPO`)
+      const clienteVerify = await database('clientes').where({id_clientes})
+      let entidade = ""
+
+      if(!clienteVerify.length){
+        logger("SERVIDOR:patchClientesAlterarSenha").info("Cliente não foi encontrado")
+        const rs = response("erro", 409, "Cliente não foi encontrado");
+        return rs    
+      }
+
+      if(clienteVerify.length){
+        id_clientes = clienteVerify[0].id_clientes
+        entidade = clienteVerify[0].id_clientes
+      }
+
+      if(bcrypt.compareSync(senha_actual, clienteVerify[0].senha)){
+
+        const cliente_update = new Date().toISOString().replace('T',' ').substr(0,19)
+      
+        logger("SERVIDOR:patchClientesRedifinirSenha").debug(`Actualizado o cliente`)
+        await database('clientes').where({id_clientes}).update({senha, cliente_update})
+
+        logger("SERVIDOR:patchClientesAlterarSenha").info(`Palavra-passe actual do cliente verificada com sucesso`)
+        const rs = response("sucesso", 202, "Palavra-passe actual do cliente verificada com sucesso");
+        return rs
+
+      }else {
+
+        logger("SERVIDOR:patchClientesAlterarSenha").info("Cliente não foi encontrado")
+        const rs = response("erro", 401, "Palavra-passe incorrecta");
+        return rs
+
+      }
+    
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:patchClientesAlterarSenha").error(`Erro ao actualizar da senha padrão ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.patchClientesFoto = async function(id_clientes, dados, req) {
   try {
 
       logger("SERVIDOR:mudarFotoClientes").error(`Erro ao mudar a foto do cliente`)
-      const actualizado_em = new Date().toISOString().replace('T',' ').substr(0,19)
-      const cliente = await database('clientes').where({numero_entidade})
+      const cliente_update = new Date().toISOString().replace('T',' ').substr(0,19)
+      const cliente = await database('clientes').where({id_clientes})
 
       if(!cliente.length){
         logger("SERVIDOR:patchClientesBloquear").info("Cliente não foi encontrado")
@@ -704,11 +766,11 @@ module.exports.patchClientesFoto = async function(numero_entidade, dados, req) {
       }
 
       logger("SERVIDOR:mudarFotoClientes").error(`Erro ao mudar a foto do cliente`)
-      await database('clientes').where({numero_entidade}).update({...dados, actualizado_em})
+      await database('clientes').where({id_clientes}).update({...dados, cliente_update})
 
       logger("SERVIDOR:mudarFotoClientes").error(`Erro ao mudar a foto do cliente`)
       const rs = response("sucesso", 202, "Logo da entidade actualizado com sucesso", "json", {
-        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "PATCH" , tabela: "CLIENTES", informacao: {...dados, numero_entidade}, entidade: cliente[0].numero_entidade}
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "PATCH" , tabela: "CLIENTES", informacao: {...dados, id_clientes}, entidade: cliente[0].id_clientes}
       });
       return rs
     
@@ -721,15 +783,15 @@ module.exports.patchClientesFoto = async function(numero_entidade, dados, req) {
     
 }
 
-module.exports.patchClientesArquivoContrato = async function(numero_entidade, dados, req) {
+module.exports.patchClientesArquivoContrato = async function(id_clientes, dados, req) {
   try {
 
       logger("SERVIDOR:patchClientesArquivoContrato").error(`Erro ao mudar a foto do cliente `)
-      const actualizado_em = new Date()
+      const cliente_update = new Date()
       .toISOString()
       .replace('T',' ')
       .substr(0,19)
-      const cliente = await database('clientes').where({numero_entidade})
+      const cliente = await database('clientes').where({id_clientes})
 
       if(!cliente.length){
         logger("SERVIDOR:patchClientesArquivoContrato").info("Cliente não foi encontrado")
@@ -738,11 +800,11 @@ module.exports.patchClientesArquivoContrato = async function(numero_entidade, da
       }
 
       logger("SERVIDOR:patchClientesArquivoContrato").error(`Erro ao mudar a foto do cliente `)
-      await database('clientes').where({numero_entidade}).update({...dados, actualizado_em})
+      await database('clientes').where({id_clientes}).update({...dados, cliente_update})
       
       logger("SERVIDOR:patchClientesArquivoContrato").error(`Erro ao mudar a foto do cliente `)
       const rs = response("sucesso", 202, "Arquivo de contrato da entidade actualizado com sucesso", "json", {
-        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "PATCH" , tabela: "CLIENTES", informacao: {...dados, numero_entidade}, entidade: cliente[0].numero_entidade}
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "PATCH" , tabela: "CLIENTES", informacao: {...dados, id_clientes}, entidade: cliente[0].id_clientes}
       });
       return rs
 
@@ -758,7 +820,7 @@ module.exports.patchClientesArquivoContrato = async function(numero_entidade, da
 module.exports.patchClientesBloquear = async function(id_clientes, req) {
   try {
 
-      const actualizado_em = new Date()
+      const cliente_update = new Date()
       .toISOString()
       .replace('T',' ')
       .substr(0,19)
@@ -773,12 +835,12 @@ module.exports.patchClientesBloquear = async function(id_clientes, req) {
       }
 
       logger("SERVIDOR:patchClientesBloquear").info(`Actualizando para bloquear`)
-      await database('clientes').where({id_clientes}).update({bloqueio:'0', actualizado_em}) 
+      await database('clientes').where({id_clientes}).update({bloqueio:'0', cliente_update}) 
 
       logger("SERVIDOR:patchClientesBloquear").info(`Cliente bloqueado com sucesso`)
       const rs = response("sucesso", 202, "Cliente bloqueado com sucesso", "json", {
         notification: {efeito: {empresa: cliente[0].nome_empresa, email: cliente[0].email}, para:"bloququeioDeContaADM", mensagem: 'null', canal:"email"},
-        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DESATIVE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].numero_entidade, id_clientes}, entidade: cliente[0].numero_entidade}
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DESATIVE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].id_clientes, id_clientes}, entidade: cliente[0].id_clientes}
       });
       return rs
     
@@ -794,7 +856,7 @@ module.exports.patchClientesBloquear = async function(id_clientes, req) {
 module.exports.patchClientesDesbloquear = async function(id_clientes, req) {
   try {
 
-      const actualizado_em = new Date()
+      const cliente_update = new Date()
       .toISOString()
       .replace('T',' ')
       .substr(0,19)
@@ -809,12 +871,12 @@ module.exports.patchClientesDesbloquear = async function(id_clientes, req) {
       }
 
       logger("SERVIDOR:patchClientesDesbloquear").info(`Actualizando para desbloquear`)
-      await database('clientes').where({id_clientes}).update({bloqueio:'1', actualizado_em})
+      await database('clientes').where({id_clientes}).update({bloqueio:'1', cliente_update})
       
       logger("SERVIDOR:patchClientesDesbloquear").info(`Cliente desbloqueado com sucesso`)
       const rs = response("sucesso", 202, "Cliente desbloqueado com sucesso", "json", {
         notification: {efeito: {empresa: cliente[0].nome_empresa, email: cliente[0].email}, para:"desbloququeioDeContaADM", mensagem: 'null', canal:"email"},
-        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "ACTIVE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].numero_entidade, id_clientes}, entidade: cliente[0].numero_entidade}
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "ACTIVE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].id_clientes, id_clientes}, entidade: cliente[0].id_clientes}
       });
       return rs
     
@@ -840,14 +902,14 @@ module.exports.configurarReporClientes = async function(id_clientes,  tentativas
       }
 
       logger("SERVIDOR:configurarReporClientes").debug(`Actualizar os numeros de tentativas de login no padrão`)
-      await database('configuracoes').where({cliente_entidade: cliente[0].numero_entidade}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
+      await database('configuracoes').where({cliente: cliente[0].id_clientes}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
 
       logger("SERVIDOR:configurarReporClientes").debug(`Actualizar o cliente para o estado de novo cliente`)
       await database('clientes').where({id_clientes}).update({novo_cliente:"1"})
 
       logger("SERVIDOR:configurarReporClientes").info(`A conta da entidade foi reposta com sucesso`)
       const rs = response("sucesso", 202, "A conta da entidade foi reposta com sucesso", "json", {
-        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "PATH", tabela: "CONFIGURACOES", informacao: {tentativas_login, entidade: cliente[0].numero_entidade, id_clientes}, entidade: cliente[0].numero_entidade}
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "PATH", tabela: "CONFIGURACOES", informacao: {tentativas_login, entidade: cliente[0].id_clientes, id_clientes}, entidade: cliente[0].id_clientes}
       });
       return rs
     
@@ -875,14 +937,14 @@ module.exports.deleteClientes = async function(id_clientes, req) {
 
       if(clienteVerify.length){
         id_clientes = clienteVerify[0].id_clientes
-        entidade = clienteVerify[0].numero_entidade
+        entidade = clienteVerify[0].id_clientes
       }   
 
       logger("SERVIDOR:deleteClientes").debug(`Verificar a existência do cliente`)
       const cliente = await database('clientes').where({id_clientes})
       
       logger("SERVIDOR:deleteClientes").debug(`Verificar se o cliente tem referências geradas e usadas`)
-      const clientesReferences = await database('referencias').where({entidade_cliente: cliente[0].numero_entidade});
+      const clientesReferences = await database('referencias').where({entidade_cliente: cliente[0].id_clientes});
       
       if(clientesReferences.length){
         logger("SERVIDOR:deleteClientes").info(`Cliente não exluido. Tem referencias geradas`)
@@ -891,7 +953,7 @@ module.exports.deleteClientes = async function(id_clientes, req) {
       }
 
       logger("SERVIDOR:deleteClientes").debug(`Verificar se o cliente tem historico de pagamentos`)
-      const clientesPagamentos = await database('pagamentos').where({numero_entidade: cliente[0].numero_entidade});
+      const clientesPagamentos = await database('pagamentos').where({id_clientes: cliente[0].id_clientes});
 
       if(clientesPagamentos.length){
         logger("SERVIDOR:deleteClientes").info(`Cliente não exluido. Tem pagamentos feitos`)
@@ -905,7 +967,7 @@ module.exports.deleteClientes = async function(id_clientes, req) {
       logger("SERVIDOR:deleteClientes").info("Cliente exluido com sucesso")
       const rs = response("sucesso", 202, "Cliente exluido com sucesso", "json", {
         gpo_comerciante_hash: cliente[0].gpo_comerciante_hash,      
-        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DELETE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].numero_entidade, id_clientes}, entidade: cliente[0].numero_entidade}
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DELETE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].id_clientes, id_clientes}, entidade: cliente[0].id_clientes}
       });
       return rs
 
