@@ -24,6 +24,10 @@ router.post('/logout', controller.logoutClientes);
 
 router.post('/comunicar-por-email', controller.comunicarEmail); 
 
+router.post('/activar-por-link', controller.activarPorLInk); 
+
+router.post('/activar-por-codigo', controller.activarPorCodigo); 
+
 router.post('/codigo-seguranca/pedir', controller.recuperarSenha);
 
 router.post('/codigo-seguranca/autenticar', controller.redifinirSenha);

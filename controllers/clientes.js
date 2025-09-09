@@ -391,6 +391,90 @@ module.exports.comunicarEmail = async function(req, res, next) {
     
 }
 
+module.exports.activarPorLInk = async function(req, res, next) {
+    
+   try {
+        logger("SERVIDOR:activarPorLInk").info(`Realizando o login`)
+        const dados = req.body 
+
+        const schemaEmail = yup.object().shape({
+          link_confirmacao: yup.string().url().required()
+        })
+
+        logger("SERVIDOR:activarPorLInk").debug(`Á validar os dados ${JSON.stringify(dados)}`)
+        const validar = await schemaEmail.validate(dados)
+        const result = await models.activarPorLInk(validar, req) 
+        
+        var wk = result.webhook
+        var lg = result.logs
+        var nt = result.notification
+        
+        delete result.webhook
+        delete result.logs
+        delete result.notification
+        
+        res.status(result.statusCode).json(result)
+        if(result.status == "sucesso"){
+          sendRequestOnMicroservices({lg, nt, wk})
+        }
+      
+   } catch (error) {
+        console.error(error.message)
+        logger("SERVIDOR:activarPorLInk").error(`Erro ao realizar o email ${error.message}`)
+
+        if(error?.path){
+          const rs = response("erro", 412, error.message);
+          res.status(rs.statusCode).json(rs)        
+        }else{  
+          const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+          res.status(rs.statusCode).json(rs)
+        }
+   }
+    
+}
+
+module.exports.activarPorCodigo = async function(req, res, next) {
+    
+   try {
+        logger("SERVIDOR:activarPorCodigo").info(`Realizando o login`)
+        const dados = req.body 
+
+        const schemaEmail = yup.object().shape({
+          codigo_confirmacao: yup.string().required()
+        })
+
+        logger("SERVIDOR:activarPorCodigo").debug(`Á validar os dados ${JSON.stringify(dados)}`)
+        const validar = await schemaEmail.validate(dados)
+        const result = await models.activarPorCodigo(validar, req) 
+        
+        var wk = result.webhook
+        var lg = result.logs
+        var nt = result.notification
+        
+        delete result.webhook
+        delete result.logs
+        delete result.notification
+        
+        res.status(result.statusCode).json(result)
+        if(result.status == "sucesso"){
+          sendRequestOnMicroservices({lg, nt, wk})
+        }
+      
+   } catch (error) {
+        console.error(error.message)
+        logger("SERVIDOR:activarPorCodigo").error(`Erro ao realizar o email ${error.message}`)
+
+        if(error?.path){
+          const rs = response("erro", 412, error.message);
+          res.status(rs.statusCode).json(rs)        
+        }else{  
+          const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+          res.status(rs.statusCode).json(rs)
+        }
+   }
+    
+}
+
 module.exports.patchClientes = async function(req, res, next) { 
       try {
 
