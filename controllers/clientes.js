@@ -197,12 +197,12 @@ module.exports.postClientes = async function(req, res, next) {
       })
 
       const schemaEntidadesHeader = yup.object().shape({
-        criador: yup.number().required()
+        confirmacao: yup.mixed().oneOf(['confirmacaoDeConta', 'confirmacaoDeContaLink'])
       })
 
       logger("SERVIDOR:postClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
       const validar = await schemaEntidades.validate(dados)
-      // const validarHeader = await schemaEntidadesHeader.validate(dadosHeader)
+      const validarHeader = await schemaEntidadesHeader.validate(dadosHeader)
 
       logger("SERVIDOR:postClientes").debug(`Fortificando a senha`)
       const passCheck = await StrengthSchecker(validar.senha)
@@ -225,7 +225,7 @@ module.exports.postClientes = async function(req, res, next) {
       
       delete validar.confirmar_senha
       // const result = await models.postClientes({...validar, nome_empresa: validar.nome_empresa.toUpperCase().trim(), senha:hash, criado_por: validarHeader.criador}, req)  
-      const result = await models.postClientes({...validar, nome_empresa: validar.nome_empresa.toUpperCase().trim(), senha:hash}, req)  
+      const result = await models.postClientes({...validar, nome_empresa: validar.nome_empresa.toUpperCase().trim(), senha:hash, validacao:validarHeader.confirmacao}, req)  
       
       var wk = result.webhook
       var lg = result.logs

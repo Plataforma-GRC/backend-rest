@@ -369,7 +369,7 @@ module.exports.postClientes = async function(dados, req) {
 
       const notification = {
             mensagem: "yup.string().required()",
-            para: "confirmacaoDeConta",
+            para: dados.validacao || "confirmacaoDeConta",
             efeito: { 
               empresa: dados.nome_empresa, 
               email: dados.email, 
