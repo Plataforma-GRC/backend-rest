@@ -182,7 +182,7 @@ module.exports.postClientes = async function(req, res, next) {
       logger("SERVIDOR:postClientes").info(`Iniciando cadastrado o cliente`)
 
       const dados =  req.body
-      // const dadosHeader =  req.headers
+      const dadosHeader =  req.headers
       const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
       const schemaEntidades = yup.object().shape({
@@ -398,7 +398,7 @@ module.exports.activarPorLInk = async function(req, res, next) {
         const dados = req.body 
 
         const schemaEmail = yup.object().shape({
-          link_confirmacao: yup.string().url().required()
+          link_confirmacao: yup.string().required()
         })
 
         logger("SERVIDOR:activarPorLInk").debug(`Á validar os dados ${JSON.stringify(dados)}`)

@@ -356,6 +356,9 @@ module.exports.postClientes = async function(dados, req) {
         const rs = response("erro", 409, "NIF usado por outra entidade, GPO");
         return rs
       }
+      
+      const validacao = dados.validacao
+      delete dados?.validacao
 
       logger("SERVIDOR:Clientes").debug(`A cadastrar o cliente`) 
       if(dados?.nif) {
@@ -368,15 +371,15 @@ module.exports.postClientes = async function(dados, req) {
       const codigo_confirmacao = String(Math.random()).replaceAll(".","").substr(0,6);
       await database("configuracoes").where({email_cliente: dados.email}).update({codigo_confirmacao})
       
-      const [link_confirmacao] = await database("configuracoes").where({email_cliente: dados.email})
+      const [info] = await database("configuracoes").where({email_cliente: dados.email})
 
       const notification = {
             mensagem: "yup.string().required()",
-            para: dados.validacao || "confirmacaoDeConta",
+            para: validacao || "confirmacaoDeConta",
             efeito: { 
               empresa: dados.nome_empresa, 
               email: dados.email, 
-              codigo_seguranca: dados.validacao == "confirmacaoDeConta" ? link_confirmacao : codigo_confirmacao
+              codigo_seguranca: validacao == "confirmacaoDeContaLink" ? info.link_confirmacao : codigo_confirmacao
             }, 
             informacao: {}, 
             canal: 'email',
@@ -573,7 +576,7 @@ module.exports.activarPorLInk = async function({link_confirmacao}, req) {
       }
 
       logger("SERVIDOR:activarPorLInk").info(`Link verificado com sucesso`)
-      await database("clientes").where({email:verificar[0].email_client}).update({bloqueio:'0'})
+      await database("clientes").where({email:verificar[0].email_cliente}).update({bloqueio:'0'})
       const rs = response("sucesso", 202, "Link verificado com sucesso",{
       info:{
         cliente: verificar[0].email_cliente,
@@ -583,7 +586,7 @@ module.exports.activarPorLInk = async function({link_confirmacao}, req) {
         
   } catch (erro) {
     console.log(erro.message)
-    logger("SERVIDOR:comunicarEmail").error(`Erro ao realizar o email ${erro.message}`)
+    logger("SERVIDOR:activarPorLInk").error(`Erro ao realizar o email ${erro.message}`)
     const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
     return rs
   }
@@ -598,23 +601,23 @@ module.exports.activarPorCodigo = async function({codigo_confirmacao}, req) {
       .where({codigo_confirmacao})
 
       if(!verificar.length){
-        logger("SERVIDOR:activarPorLInk").info("Link de verificação incorrecto")
-        const rs = response("erro", 409, "Link de verificação incorrecto");
+        logger("SERVIDOR:activarPorLInk").info("Codigo verificado incorrecto")
+        const rs = response("erro", 409, "Codigo verificado incorrecto");
         return rs    
       }
 
       logger("SERVIDOR:activarPorLInk").info(`Codigo verificado com sucesso`)
-      await database("clientes").where({email:verificar[0].email_client}).update({bloqueio:'0'})
+      await database("clientes").where({email:verificar[0].email_cliente}).update({bloqueio:'0'})
       const rs = response("sucesso", 202, "Codigo verificado com sucesso",{
       info:{
         cliente: verificar[0].email_cliente,
-        hash_activacao: link_confirmacao
+        pin_activacao: codigo_confirmacao
       }});
       return rs
         
   } catch (erro) {
     console.log(erro.message)
-    logger("SERVIDOR:comunicarEmail").error(`Erro ao realizar o email ${erro.message}`)
+    logger("SERVIDOR:activarPorCodigo").error(`Erro ao realizar o email ${erro.message}`)
     const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
     return rs
   }

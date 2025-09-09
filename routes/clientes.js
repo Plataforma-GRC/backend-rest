@@ -16,7 +16,7 @@ router.get('/email/:email', controller.getClientesEmail);
 
 /* POST clientes listing. */
 
-router.post('/', controller.postClientes);
+router.post('/', controller.postClientes); 
 
 router.post('/login', controller.loginClientes); 
 
