@@ -364,7 +364,7 @@ module.exports.postClientes = async function(dados, req) {
       if(dados?.nif) {
         await database('clientes').insert({...dados, nome_empresa: dados.nome_empresa.toUpperCase()})
       }
-      else if(dados?.id_clientes){    
+      else if(dados?.id_clientes){     
         await database('clientes').insert({...dados, nome_empresa: dados.nome_empresa.toUpperCase()})
       }
 
