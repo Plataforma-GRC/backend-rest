@@ -365,6 +365,7 @@ module.exports.clientesTransacoesFilteres = function(resultSet = []){
         return rf
        })
 }
+
 module.exports.clientesTransacoesSomatorioFilteres = function(transaccoes = [], clientes = []){
 
       const resultSet = clientes.reduce((prev, curr) => {
@@ -450,6 +451,50 @@ module.exports.clientesTransacoesSomatorioFilteres = function(transaccoes = [], 
 }
 
 module.exports.clientesTruesFilteres = function(resultSet = []){
+
+    return resultSet.filter(rf => {
+
+
+        delete rf.montante_maximo_pagamento
+        delete rf.montante_minimo_pagamento
+        delete rf.gpo_numero_comerciante
+        delete rf.gpo_numero_cartao
+        delete rf.gpo_numero_banco
+        delete rf.gpo_numero_POS
+        delete rf.gpo_numero_establecimento
+        delete rf.gpo_comerciante_hash
+        delete rf.habilitar_area_docs
+        delete rf.habilitar_area_tecnica
+        delete rf.habilitar_area_coluna_prt_tabela_pagamentos
+        delete rf.habilitar_area_coluna_mft_tabela_pagamentos
+        delete rf.habilitar_area_coluna_concliacao_tabela_pagamentos
+        delete rf.servico_whatsapp
+        delete rf.servico_email
+        delete rf.servico_mensagens
+        delete rf.servico_gpo
+        delete rf.servico_pagamento_por_sector
+        delete rf.pagamento_tempo_real
+        delete rf.aceitar_webhook
+        delete rf.ip_secundario
+        delete rf.ip_primario
+        delete rf.tempo_de_vida_codigo_seguranca
+        delete rf.codigo_seguranca
+        delete rf.tentativas_login
+        delete rf.cliente_entidade
+        delete rf.id_conf
+        delete rf.senha_
+        delete rf.cadastrado_em
+        delete rf.tipo_usuario
+        delete rf.gerado_por
+        delete rf.senha     
+        
+
+        return rf
+
+       })
+}
+
+module.exports.riscosTruesFilteres = function(resultSet = []){
 
     return resultSet.filter(rf => {
 

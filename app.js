@@ -17,9 +17,15 @@ const categoriaAoRistRouter = require("./routes/categoria_de_risco");
 const clientesRouter = require("./routes/clientes");
 const colaboradoresDeConsentimentoRouter = require("./routes/colaboradores_de_consentimento");
 const departamentoClientesRouter = require("./routes/departamentos_clientes");
+const industriasPrincipaisRouter = require("./routes/industrias_principais");
+const jurisdicaoRouter = require("./routes/jurisdicao_activa");
 const listaDeCategoriasRouter = require("./routes/lista_de_categoria_de_risco");
+const listaCategoriaSubAoRistRouter = require("./routes/lista_categoria_sub_de_risco");
 const perguntasCategoriasRouter = require("./routes/perguntas_categorias");
 const respostasPerguntasCategoriasRouter = require("./routes/respostas_perguntas_categorias");
+const riscosRouter = require("./routes/riscos");
+const usuariosRouter = require("./routes/usuarios");
+const usuariosFuncoesRouter = require("./routes/usuarios_funcoes");
 
 require("dotenv").config({ path: path.join(__dirname, '.env') });
 
@@ -64,9 +70,15 @@ app.use("/v1/categoria-ao-risco", categoriaAoRistRouter);
 app.use("/v1/clientes", clientesRouter);
 app.use("/v1/colaboradores-de-consentimentos", colaboradoresDeConsentimentoRouter);
 app.use("/v1/departamentos-clientes", departamentoClientesRouter);
+app.use("/v1/industrias-principais", industriasPrincipaisRouter)
+app.use("/v1/jurisdicao-activa", jurisdicaoRouter)
 app.use("/v1/lista-de-categoria-de-risco", listaDeCategoriasRouter);
+app.use("/v1/lista-sub-categoria-ao-risco", listaCategoriaSubAoRistRouter);
 app.use("/v1/perguntas-categorias", perguntasCategoriasRouter);
 app.use("/v1/respostas-perguntas-categorias", respostasPerguntasCategoriasRouter);
+app.use("/v1/riscos", riscosRouter)
+app.use("/v1/usuarios", usuariosRouter)
+app.use("/v1/usuarios-funcoes", usuariosFuncoesRouter)
 
 app.use(timeoutApp); 
 

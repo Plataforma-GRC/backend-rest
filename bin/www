@@ -7,7 +7,6 @@
 const app = require('../app');
 const {client} = require('../utils/rabbitMQ');
 const clientRedis =  require('../infra/redis');
-const amqplib = require('amqplib');
 const debug = require('debug')('apipaykwanza:server');
 const http = require('http');
 const https = require('https');

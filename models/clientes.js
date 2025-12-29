@@ -6,7 +6,6 @@ const response = require("../constants/response");
 const logger = require('../services/loggerService');
 const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
-const { date } = require('yup');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
 module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2) {
@@ -646,6 +645,82 @@ module.exports.patchClientes = async function(id_clientes, dados, req) {
 
     logger("SERVIDOR:patchClientes").info(`Cliente actualizado com sucesso`)
     const rs = response("sucesso", 202, "Cliente actualizado com sucesso");
+    return rs
+    
+  } catch (erro) {
+    console.log(erro)
+    logger("SERVIDOR:patchClientes").error(`Erro ao buscar clientes ${erro.message}`)
+    const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+    return rs
+  }
+    
+}
+
+module.exports.patchRedifinirIndustria = async function(id_clientes, dados, req) { 
+  try {
+
+    logger("SERVIDOR:patchClientes").debug(`Verificar se é um  cliente do serviço GPO`)
+    const clienteVerify = await database('clientes').where({id_clientes})
+    let entidade = ""
+
+    if(!clienteVerify.length){
+      logger("SERVIDOR:patchClientes").info("Cliente não foi encontrado")
+      const rs = response("erro", 409, "Cliente não foi encontrado");
+      return rs    
+    }
+
+    const cindustriaisVerify = await database('industrias_principais').where({id_industrias_principal: dados?.cliente_industria_id})
+
+    if(!cindustriaisVerify.length){
+      logger("SERVIDOR:patchClientes").info("Industria não foi encontrado")
+      const rs = response("erro", 409, "Industria não foi encontrado");
+      return rs    
+    }
+
+    logger("SERVIDOR:patchClientes").debug(`Actualizado o cliente`)
+    await database('clientes').where({id_clientes}).update({...dados})
+    
+
+    logger("SERVIDOR:patchClientes").info(`Industria actualizado com sucesso`)
+    const rs = response("sucesso", 202, "Industria actualizado com sucesso");
+    return rs
+    
+  } catch (erro) {
+    console.log(erro)
+    logger("SERVIDOR:patchClientes").error(`Erro ao buscar clientes ${erro.message}`)
+    const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+    return rs
+  }
+    
+}
+
+module.exports.patchRedifinirJurisdicao = async function(id_clientes, dados, req) { 
+  try {
+
+    logger("SERVIDOR:patchClientes").debug(`Verificar se é um  cliente do serviço GPO`)
+    const clienteVerify = await database('clientes').where({id_clientes})
+    let entidade = ""
+
+    if(!clienteVerify.length){
+      logger("SERVIDOR:patchClientes").info("Cliente não foi encontrado")
+      const rs = response("erro", 409, "Cliente não foi encontrado");
+      return rs    
+    }
+
+    const cJurisdicaoVerify = await database('jurisdicao_activa').where({jurisdicao_activa_id: dados?.cliente_jurisdicao_id})
+
+    if(!cJurisdicaoVerify.length){
+      logger("SERVIDOR:patchClientes").info("Jurisdicao não foi encontrado")
+      const rs = response("erro", 409, "Jurisdicao não foi encontrado");
+      return rs    
+    }
+
+    logger("SERVIDOR:patchClientes").debug(`Actualizado o cliente`)
+    await database('clientes').where({id_clientes}).update({...dados})
+    
+
+    logger("SERVIDOR:patchClientes").info(`Jurisdicao actualizado com sucesso`)
+    const rs = response("sucesso", 202, "Jurisdicao actualizado com sucesso");
     return rs
     
   } catch (erro) {
