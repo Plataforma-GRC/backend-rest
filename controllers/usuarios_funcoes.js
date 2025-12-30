@@ -63,6 +63,7 @@ module.exports.postUsuariosFuncoes = async function(req, res, next) {
 
       const schemaUsuariosFuncoes = yup.object().shape({
         usuario_funcao: yup.string().required(),
+        usuario_nivel_hierarquico: yup.string(),
         empresa_funcao_fk: yup.number().required()
       })
 
@@ -110,6 +111,7 @@ module.exports.patchUsuariosFuncoes = async function(req, res, next) {
 
         const schemaUsuariosFuncoes = yup.object().shape({
           usuario_funcao: yup.string(),
+          usuario_nivel_hierarquico: yup.string(),
           empresa_funcao_fk: yup.number()
         })
 

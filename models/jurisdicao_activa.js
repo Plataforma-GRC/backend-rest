@@ -6,20 +6,20 @@ const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_activa_descricao) {
+module.exports.getJurisdicaoActiva = async function(pagina, limite, orgao_regulador) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
 
       const Industrias = await database('jurisdicao_activa')
-      .whereLike("jurisdicao_activa_descricao",`%${jurisdicao_activa_descricao}%`)
+      .whereLike("orgao_regulador",`%${orgao_regulador}%`)
       .orderBy('jurisdicao_activa_id','DESC')
 
       const {registros} = paginationRecords(Industrias, pagina, limite)
 
       logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
       const clientesLimite = await database('jurisdicao_activa')
-      .whereLike("jurisdicao_activa_descricao",`%${jurisdicao_activa_descricao}%`)
+      .whereLike("orgao_regulador",`%${orgao_regulador}%`)
       .limit(registros.limite)
       .offset(registros.count)
       .orderBy('jurisdicao_activa_id','DESC')
@@ -27,7 +27,7 @@ module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_a
       const filtered = clientesTruesFilteres(clientesLimite)
 
       registros.total_apresentados = clientesLimite.length
-      registros.jurisdicao_activa_descricao = jurisdicao_activa_descricao
+      registros.orgao_regulador = orgao_regulador
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered, "json", { registros });
@@ -70,7 +70,7 @@ module.exports.postJurisdicaoActiva = async function(dados, req) {
       logger("SERVIDOR:postClientes").debug(`Verificar o cliente por email`)
       
       const resultEnt  = await database('jurisdicao_activa')
-      .where({jurisdicao_activa_descricao: dados?.jurisdicao_activa_descricao})
+      .where({orgao_regulador: dados?.orgao_regulador})
       .andWhere({jurisdicao_activa_pais: dados?.jurisdicao_activa_pais})
       
       if(resultEnt.length > 0 ){

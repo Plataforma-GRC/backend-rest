@@ -49,7 +49,8 @@ module.exports.postListaDeCategorias = async function(req, res, next) {
       const dados =  req.body
 
       const schemaListaDeCategorias = yup.object().shape({
-        categoria: yup.string().required()
+        categoria: yup.string().required(),
+        categoria_descricao: yup.string().required()
       })
 
       logger("SERVIDOR:postClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
@@ -96,6 +97,7 @@ module.exports.patchListaDeCategorias = async function(req, res, next) {
 
         const schemaListaDeCategorias = yup.object().shape({
           categoria: yup.string(),
+          categoria_descricao: yup.string()
         })
 
         logger("SERVIDOR:patchClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
