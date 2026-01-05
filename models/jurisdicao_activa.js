@@ -6,20 +6,22 @@ const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getJurisdicaoActiva = async function(pagina, limite, orgao_regulador) {
+module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
 
       const Industrias = await database('jurisdicao_activa')
-      .whereLike("orgao_regulador",`%${orgao_regulador}%`)
+      .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
+      .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .orderBy('jurisdicao_activa_id','DESC')
 
       const {registros} = paginationRecords(Industrias, pagina, limite)
 
       logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
       const clientesLimite = await database('jurisdicao_activa')
-      .whereLike("orgao_regulador",`%${orgao_regulador}%`)
+      .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
+      .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .limit(registros.limite)
       .offset(registros.count)
       .orderBy('jurisdicao_activa_id','DESC')
@@ -27,7 +29,8 @@ module.exports.getJurisdicaoActiva = async function(pagina, limite, orgao_regula
       const filtered = clientesTruesFilteres(clientesLimite)
 
       registros.total_apresentados = clientesLimite.length
-      registros.orgao_regulador = orgao_regulador
+      registros.jurisdicao_orgao_regulador = jurisdicao_orgao_regulador
+      registros.jurisdicao_activa_pais = jurisdicao_activa_pais
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered, "json", { registros });
@@ -70,7 +73,7 @@ module.exports.postJurisdicaoActiva = async function(dados, req) {
       logger("SERVIDOR:postClientes").debug(`Verificar o cliente por email`)
       
       const resultEnt  = await database('jurisdicao_activa')
-      .where({orgao_regulador: dados?.orgao_regulador})
+      .where({jurisdicao_orgao_regulador: dados?.jurisdicao_orgao_regulador})
       .andWhere({jurisdicao_activa_pais: dados?.jurisdicao_activa_pais})
       
       if(resultEnt.length > 0 ){

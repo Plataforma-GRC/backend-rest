@@ -130,6 +130,7 @@ module.exports.patchRiscos = async function(req, res, next) {
           departamento_organizacional_id: yup.number(),
           descricao_risco: yup.string(),
           categoria_risco_fk_id: yup.number(),
+          risco_escala_mtx_id_fk: yup.number(),
           fonte: yup.string(),
           causa: yup.string(),
           consequencia: yup.string(),

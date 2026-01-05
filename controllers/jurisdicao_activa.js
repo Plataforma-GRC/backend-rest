@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getJurisdicaoActiva = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, orgao_regulador = ''} = req.query
-      const results = await models.getJurisdicaoActiva(pagina, limite, orgao_regulador); 
+      const {pagina, limite, jurisdicao_orgao_regulador = '', jurisdicao_activa_pais = ''} = req.query
+      const results = await models.getJurisdicaoActiva(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -49,7 +49,7 @@ module.exports.postJurisdicaoActiva = async function(req, res, next) {
       const dados =  req.body
 
       const schemaJurisdicaoActiva = yup.object().shape({
-        orgao_regulador: yup.string().required(),
+        jurisdicao_orgao_regulador: yup.string().required(),
         jurisdicao_activa_pais: yup.string().required()
       })
 
@@ -96,7 +96,7 @@ module.exports.patchJurisdicaoActiva = async function(req, res, next) {
         const dados = req.body
 
         const schemaJurisdicaoActiva = yup.object().shape({
-          orgao_regulador: yup.string(),
+          jurisdicao_orgao_regulador: yup.string(),
         })
 
         logger("SERVIDOR:patchClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
