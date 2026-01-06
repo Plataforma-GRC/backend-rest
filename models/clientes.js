@@ -5,10 +5,10 @@ const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
 const paginationRecords = require("../helpers/paginationRecords")
-const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
+const { clientesTruesFilteres, clientesFrameworksFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2) {
+module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -20,6 +20,7 @@ module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, e
       .whereLike("email_2",`%${email_2}%`)
       .whereLike("contacto",`%${contacto}%`)
       .whereLike("contacto_2",`%${contacto_2}%`)
+      .whereLike("cliente_time",`%${cliente_time}%`)
       .orderBy('id_clientes','DESC')
 
       const {registros} = paginationRecords(clientes, pagina, limite)
@@ -32,6 +33,7 @@ module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, e
       .whereLike("email_2",`%${email_2}%`)
       .whereLike("contacto",`%${contacto}%`)
       .whereLike("contacto_2",`%${contacto_2}%`)
+      .whereLike("cliente_time",`%${cliente_time}%`)
       .limit(registros.limite)
       .offset(registros.count)
       .orderBy('id_clientes','DESC')
@@ -45,6 +47,7 @@ module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, e
       registros.email_2 = email_2
       registros.contacto = contacto
       registros.contacto_2 = contacto_2
+      registros.cliente_time = cliente_time
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered, "json", { registros });
@@ -201,18 +204,54 @@ module.exports.getClientesEmail = async function(email) {
     
 }
 
-module.exports.getClientesFrameworks = async function() {
+module.exports.getClientesFrameworks = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
   try {
 
-      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
       const clientes = await database('clientes')
       .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
-      .orderBy('clientes_frameworks_id','DESC')
-      
-      delete clientes?.senha
-    
-      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, clientes);          
+      .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
+      .whereLike("nome_empresa",`%${String(nome_empresa).toUpperCase()}%`)
+      .whereLike("nif",`%${nif}%`)
+      .whereLike("email",`%${email}%`)
+      .whereLike("email_2",`%${email_2}%`)
+      .whereLike("contacto",`%${contacto}%`)
+      .whereLike("contacto_2",`%${contacto_2}%`)
+      .whereLike("cliente_time",`%${cliente_time}%`)
+      .orderBy('id_clientes','DESC')
+
+      const {registros} = paginationRecords(clientes, pagina, limite)
+
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
+      const clientesLimite = await database('clientes')
+      .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
+      .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
+      .whereLike("nome_empresa",`%${String(nome_empresa).toUpperCase()}%`)
+      .whereLike("nif",`%${nif}%`)
+      .whereLike("email",`%${email}%`)
+      .whereLike("email_2",`%${email_2}%`)
+      .whereLike("contacto",`%${contacto}%`)
+      .whereLike("contacto_2",`%${contacto_2}%`)
+      .whereLike("cliente_time",`%${cliente_time}%`)
+      .limit(registros.limite)
+      .offset(registros.count)
+      .orderBy('id_clientes','DESC')
+
+
+      const clientesAll = await database('clientes')
+
+      const filtered = clientesFrameworksFilteres(clientesAll, clientesLimite)
+
+      registros.total_apresentados = clientesLimite.length
+      registros.nome_empresa = nome_empresa
+      registros.nif = nif
+      registros.email = email
+      registros.email_2 = email_2
+      registros.contacto = contacto
+      registros.contacto_2 = contacto_2
+      registros.cliente_time = cliente_time
+
+      logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, filtered, "json", { registros });
       return rs
 
   } catch (erro) {

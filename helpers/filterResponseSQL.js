@@ -496,6 +496,61 @@ module.exports.clientesTruesFilteres = function(resultSet = []){
        })
 }
 
+module.exports.clientesFrameworksFilteres = function(resultAll = [], resultSet = []){
+
+    const final = []
+    for(const rf of resultAll) {
+
+        const dados = {...rf, frameworks:[]}
+
+        
+        for (const dt of resultSet){
+            
+            delete dt.id_clientes
+            delete dt.nome_empresa  
+            delete dt.nif
+            delete dt.contacto
+            delete dt.contacto_2
+            delete dt.email
+            delete dt.email_2
+            delete dt.logo
+            delete dt.bloqueio
+            delete dt.ultimo_login
+            delete dt.ultimo_logout
+            delete dt.hash_autenticador
+            delete dt.sector_atuacao
+            delete dt.tamanho_organizacao
+            delete dt.cliente_time
+            delete dt.cliente_update
+            delete dt.framework_time
+            delete dt.framework_update
+            delete dt.novo_cliente
+            delete dt.tipo_usuario
+            delete dt.senha
+            delete dt.frameworks_id_fk
+            delete dt.clientes_frameworks_time
+            delete dt.clientes_frameworks_update
+            delete dt.framework_tipo_id_fk
+            delete dt.framework_orgao_id_fk
+            delete dt.clientes_frameworks_id
+            delete dt.cliente_industria_id
+            delete dt.cliente_jurisdicao_id
+            
+            
+            if(dados?.id_clientes == dt?.clientes_id_fk){
+                delete dt.clientes_id_fk
+                dados.frameworks.push(dt)
+            }
+            
+        }
+
+        final.push(dados)
+        
+    }
+
+    return final
+}
+
 module.exports.JurisdicaoComFrameworksTruesFilteres = function(resultAll = [], resultSet = []){
 
 
