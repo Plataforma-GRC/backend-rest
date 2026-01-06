@@ -21,6 +21,22 @@ module.exports.getJurisdicaoActiva = async function(req, res, next) {
     
 }
 
+module.exports.getJurisdicaoActivaComFrameworks = async function(req, res, next) {
+  try{
+      logger("SERVIDOR:Clientes").info("Buscar clientes")
+      const {pagina, limite, jurisdicao_orgao_regulador = '', jurisdicao_activa_pais = ''} = req.query
+      const results = await models.getJurisdicaoActivaComFrameworks(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais); 
+      res.status(results.statusCode).json(results)
+    
+  } catch (error) {
+      console.error(error.message)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+      res.status(rs.statusCode).json(rs)
+  }
+    
+}
+
 module.exports.getJurisdicaoActivaId = async function(req, res, next) {
   try{
 

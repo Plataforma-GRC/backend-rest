@@ -43,6 +43,43 @@ module.exports.getIndustriasPrincipais = async function(pagina, limite, industri
     
 }
 
+module.exports.getIndustriasPrincipaisComFrameworks = async function(pagina, limite, industrias_principal_descricao) {
+  try {
+      
+      logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
+
+      const Industrias = await database('industrias_principais')
+      .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
+      .orderBy('id_industrias_principal','DESC')
+
+      const {registros} = paginationRecords(Industrias, pagina, limite)
+
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
+      const clientesLimite = await database('industrias_principais')
+      .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
+      .limit(registros.limite)
+      .offset(registros.count)
+      .orderBy('id_industrias_principal','DESC')
+
+      const filtered = clientesTruesFilteres(clientesLimite)
+
+      registros.total_apresentados = clientesLimite.length
+      registros.industrias_principal_descricao = industrias_principal_descricao
+
+      logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, filtered, "json", { registros });
+      return rs
+
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar Industrias ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
 module.exports.getIndustriasPrincipaisId = async function(id_industrias_principal) {
   try {
 

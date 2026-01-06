@@ -3,7 +3,7 @@ const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
 const paginationRecords = require("../helpers/paginationRecords")
-const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
+const { clientesTruesFilteres, JurisdicaoComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
 module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
@@ -11,24 +11,24 @@ module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_o
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
 
-      const Industrias = await database('jurisdicao_activa')
+      const Jurisdicao = await database('jurisdicao_activa')
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .orderBy('jurisdicao_activa_id','DESC')
 
-      const {registros} = paginationRecords(Industrias, pagina, limite)
+      const {registros} = paginationRecords(Jurisdicao, pagina, limite)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('jurisdicao_activa')
+      logger("Clientes").debug(`Buscar todos Jurisdicao no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
+      const JurisdicaoLimite = await database('jurisdicao_activa')
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .limit(registros.limite)
       .offset(registros.count)
       .orderBy('jurisdicao_activa_id','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(JurisdicaoLimite)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = JurisdicaoLimite.length
       registros.jurisdicao_orgao_regulador = jurisdicao_orgao_regulador
       registros.jurisdicao_activa_pais = jurisdicao_activa_pais
 
@@ -39,7 +39,58 @@ module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_o
 
   } catch (erro) {
       console.log(erro)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar Industrias ${erro.message}`)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar Jurisdicao ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.getJurisdicaoActivaComFrameworks = async function(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
+  try {
+      
+      logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
+
+      const Jurisdicao = await database('jurisdicao_activa')
+      .join("framework_jurisdicao","framework_jurisdicao.jurisdicao_activa_id_fk","=","jurisdicao_activa.jurisdicao_activa_id")
+      .join("framework","framework.framework_id", "=" ,"framework_jurisdicao.framework_id_fk")
+      .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
+      .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
+      .orderBy('jurisdicao_activa_id','DESC')
+
+      const {registros} = paginationRecords(Jurisdicao, pagina, limite)
+
+      logger("Clientes").debug(`Buscar todos Jurisdicao no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
+      const JurisdicaoLimite = await database('jurisdicao_activa')
+      .join("framework_jurisdicao","framework_jurisdicao.jurisdicao_activa_id_fk","=","jurisdicao_activa.jurisdicao_activa_id")
+      .join("framework","framework.framework_id", "=" ,"framework_jurisdicao.framework_id_fk")
+      .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
+      .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
+      .limit(registros.limite)
+      .offset(registros.count)
+      .orderBy('jurisdicao_activa_id','DESC')
+
+      const JurisdicaoEvery = await database('jurisdicao_activa')
+      .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
+      .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
+      .limit(registros.limite)
+      .offset(registros.count)
+      .orderBy('jurisdicao_activa_id','DESC')
+
+      const filtered = JurisdicaoComFrameworksTruesFilteres(JurisdicaoEvery, JurisdicaoLimite)
+
+      registros.total_apresentados = JurisdicaoLimite.length
+      registros.jurisdicao_orgao_regulador = jurisdicao_orgao_regulador
+      registros.jurisdicao_activa_pais = jurisdicao_activa_pais
+
+      logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, filtered, "json", { registros });
+      return rs
+
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar Jurisdicao ${erro.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -59,7 +110,7 @@ module.exports.getJurisdicaoActivaId = async function(jurisdicao_activa_id) {
 
   } catch (erro) {
       console.log(erro)
-      logger("SERVIDOR:ClientesId").error(`Erro ao buscar Industrias por ID ${erro.message}`)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar Jurisdicao por ID ${erro.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -124,7 +175,7 @@ module.exports.patchJurisdicaoActiva = async function(jurisdicao_activa_id, dado
     
   } catch (erro) {
     console.log(erro)
-    logger("SERVIDOR:patchClientes").error(`Erro ao buscar Industrias ${erro.message}`)
+    logger("SERVIDOR:patchClientes").error(`Erro ao buscar Jurisdicao ${erro.message}`)
     const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
     return rs
   }
@@ -134,7 +185,7 @@ module.exports.patchJurisdicaoActiva = async function(jurisdicao_activa_id, dado
 module.exports.deleteJurisdicaoActiva = async function(jurisdicao_activa_id, req) { 
   try {
 
-      logger("SERVIDOR:deleteClientes").debug(`Verificar se o Industrias é do serviço GPO`)
+      logger("SERVIDOR:deleteClientes").debug(`Verificar se o Jurisdicao é do serviço GPO`)
       const catergoriaVerify = await database('jurisdicao_activa').where({jurisdicao_activa_id})
 
       if(!catergoriaVerify.length){

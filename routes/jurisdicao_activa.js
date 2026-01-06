@@ -6,6 +6,8 @@ const controller = require('../controllers/jurisdicao_activa');
 /* GET clientes listing. */
 router.get('/', controller.getJurisdicaoActiva);
 
+router.get('/com-frameworks', controller.getJurisdicaoActivaComFrameworks);
+
 /* POST clientes listing. */
 
 router.post('/', controller.postJurisdicaoActiva);

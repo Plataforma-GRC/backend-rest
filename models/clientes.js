@@ -83,6 +83,29 @@ module.exports.getClientesID = async function(id_clientes) {
     
 }
 
+module.exports.getClientesIdFrameworks = async function(id_clientes) {
+  try {
+
+      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
+      const [clientes] = await database('clientes')
+      .where({id_clientes})
+      .orderBy('id_clientes','DESC')
+      
+      delete clientes?.senha
+    
+      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, clientes || {});          
+      return rs
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
 module.exports.getClientesEntidade = async function(id_clientes) {
   try {
 
@@ -174,6 +197,52 @@ module.exports.getClientesEmail = async function(email) {
     logger("SERVIDOR:ClientesEmail").error(`Erro ao buscar cliente ${erro.message}`)
     const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
     return rs
+  }
+    
+}
+
+module.exports.getClientesFrameworks = async function() {
+  try {
+
+      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
+      const clientes = await database('clientes')
+      .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
+      .orderBy('clientes_frameworks_id','DESC')
+      
+      delete clientes?.senha
+    
+      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, clientes);          
+      return rs
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.getClientesFrameworksId = async function(id_clientes) {
+  try {
+
+      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
+      const [clientes] = await database('clientes')
+      .where({id_clientes})
+      .orderBy('id_clientes','DESC')
+      
+      delete clientes?.senha
+    
+      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, clientes || {});          
+      return rs
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
   }
     
 }

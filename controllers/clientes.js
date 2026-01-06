@@ -43,6 +43,24 @@ module.exports.getClientesId = async function(req, res, next) {
     
 }
 
+module.exports.getClientesIdFrameworks = async function(req, res, next) {
+  try{
+
+    logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
+    const {id_clientes} = req.params
+
+    const results = await models.getClientesIdFrameworks(id_clientes);
+    res.status(results.statusCode).json(results)
+    
+  } catch (error) {
+    console.error(error.message)
+    const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+    res.status(rs.statusCode).json(rs)
+    logger("SERVIDOR:ClientesId").error(`Erro ao buscar cliente pelo Id ${error.message}`)
+  }
+    
+}
+
 module.exports.getClientesEntidade = async function(req, res, next) {
   try{
     const {numero_entidade} = req.params
@@ -85,6 +103,41 @@ module.exports.getClientesEmail = async function(req, res, next) {
     const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
     res.status(rs.statusCode).json(rs)
     logger("SERVIDOR:ClientesEmail").error(`Erro ao buscar percentual de uso ${error.message}`)
+  }
+    
+}
+
+module.exports.getClientesFrameworks = async function(req, res, next) {
+  try{
+
+    logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
+
+    const results = await models.getClientesFrameworks();
+    res.status(results.statusCode).json(results)
+    
+  } catch (error) {
+    console.error(error.message)
+    const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+    res.status(rs.statusCode).json(rs)
+    logger("SERVIDOR:ClientesId").error(`Erro ao buscar cliente pelo Id ${error.message}`)
+  }
+    
+}
+
+module.exports.getClientesFrameworksId = async function(req, res, next) {
+  try{
+
+    logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
+    const {id_clientes} = req.params
+
+    const results = await models.getClientesFrameworksId(id_clientes);
+    res.status(results.statusCode).json(results)
+    
+  } catch (error) {
+    console.error(error.message)
+    const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+    res.status(rs.statusCode).json(rs)
+    logger("SERVIDOR:ClientesId").error(`Erro ao buscar cliente pelo Id ${error.message}`)
   }
     
 }

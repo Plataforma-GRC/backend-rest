@@ -21,6 +21,22 @@ module.exports.getIndustriasPrincipais = async function(req, res, next) {
     
 }
 
+module.exports.getIndustriasPrincipaisComFrameworks = async function(req, res, next) {
+  try{
+      logger("SERVIDOR:Clientes").info("Buscar clientes")
+      const {pagina, limite, industrias_principal_descricao = ''} = req.query
+      const results = await models.getIndustriasPrincipaisComFrameworks(pagina, limite, industrias_principal_descricao); 
+      res.status(results.statusCode).json(results)
+    
+  } catch (error) {
+      console.error(error.message)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+      res.status(rs.statusCode).json(rs)
+  }
+    
+}
+
 module.exports.getIndustriasPrincipaisId = async function(req, res, next) {
   try{
 

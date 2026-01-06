@@ -17,6 +17,7 @@ const categoriaAoRistRouter = require("./routes/categoria_de_risco");
 const clientesRouter = require("./routes/clientes");
 const colaboradoresDeConsentimentoRouter = require("./routes/colaboradores_de_consentimento");
 const departamentoClientesRouter = require("./routes/departamentos_clientes");
+const frameworksRouter = require("./routes/frameworks");
 const industriasPrincipaisRouter = require("./routes/industrias_principais");
 const jurisdicaoRouter = require("./routes/jurisdicao_activa");
 const listaDeCategoriasRouter = require("./routes/lista_de_categoria_de_risco");
@@ -70,6 +71,7 @@ app.use("/v1/categoria-ao-risco", categoriaAoRistRouter);
 app.use("/v1/clientes", clientesRouter);
 app.use("/v1/colaboradores-de-consentimentos", colaboradoresDeConsentimentoRouter);
 app.use("/v1/departamentos-clientes", departamentoClientesRouter);
+app.use("/v1/frameworks", frameworksRouter);
 app.use("/v1/industrias-principais", industriasPrincipaisRouter)
 app.use("/v1/jurisdicao-activa", jurisdicaoRouter)
 app.use("/v1/lista-de-categoria-de-risco", listaDeCategoriasRouter);
