@@ -5,7 +5,7 @@ const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
 const paginationRecords = require("../helpers/paginationRecords")
-const { clientesTruesFilteres, clientesFrameworksFilteres } = require('../helpers/filterResponseSQL');
+const { clientesTruesFilteres, clientesFrameworksFilteres, clientesFrameworksIdFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
 module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
@@ -93,11 +93,19 @@ module.exports.getClientesIdFrameworks = async function(id_clientes) {
       const [clientes] = await database('clientes')
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
+
+      const clientesLimite = await database('clientes')
+      .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
+      .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
+      .where({id_clientes})
+      .orderBy('id_clientes','DESC')
+
+      const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
       
       delete clientes?.senha
     
       logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, clientes || {});          
+      const rs = response("sucesso", 200, filtered || {});          
       return rs
 
   } catch (erro) {
@@ -263,18 +271,27 @@ module.exports.getClientesFrameworks = async function(pagina, limite, nome_empre
     
 }
 
-module.exports.getClientesFrameworksId = async function(id_clientes) {
+module.exports.getClientesFrameworksId = async function(id_clientes, clientes_frameworks_id) {
   try {
 
       logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
       const [clientes] = await database('clientes')
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
+
+      const clientesLimite = await database('clientes')
+      .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
+      .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
+      .where({id_clientes})
+      .andWhere({clientes_frameworks_id})
+      .orderBy('id_clientes','DESC')
+
+      const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
       
       delete clientes?.senha
     
       logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, clientes || {});          
+      const rs = response("sucesso", 200, filtered || {});          
       return rs
 
   } catch (erro) {
@@ -829,6 +846,44 @@ module.exports.patchRedifinirJurisdicao = async function(id_clientes, dados, req
 
     logger("SERVIDOR:patchClientes").info(`Jurisdicao actualizado com sucesso`)
     const rs = response("sucesso", 202, "Jurisdicao actualizado com sucesso");
+    return rs
+    
+  } catch (erro) {
+    console.log(erro)
+    logger("SERVIDOR:patchClientes").error(`Erro ao buscar clientes ${erro.message}`)
+    const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+    return rs
+  }
+    
+}
+
+module.exports.patchRedifinirEscalaMatriz = async function(id_clientes, dados, req) { 
+  try {
+
+    logger("SERVIDOR:patchClientes").debug(`Verificar se é um  cliente do serviço GPO`)
+    const clienteVerify = await database('clientes').where({id_clientes})
+    let entidade = ""
+
+    if(!clienteVerify.length){
+      logger("SERVIDOR:patchClientes").info("Cliente não foi encontrado")
+      const rs = response("erro", 409, "Cliente não foi encontrado");
+      return rs    
+    }
+
+    const cEscalaVerify = await database('riscos_matriz_escala').where({risco_escala_id: dados?.cliente_matriz_escala_id})
+
+    if(!cEscalaVerify.length){
+      logger("SERVIDOR:patchClientes").info("Escala não foi encontrado")
+      const rs = response("erro", 409, "Escala não foi encontrado");
+      return rs    
+    }
+
+    logger("SERVIDOR:patchClientes").debug(`Actualizado o cliente`)
+    await database('clientes').where({id_clientes}).update({...dados})
+    
+
+    logger("SERVIDOR:patchClientes").info(`Escala actualizado com sucesso`)
+    const rs = response("sucesso", 202, "Escala actualizado com sucesso");
     return rs
     
   } catch (erro) {

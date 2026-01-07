@@ -48,6 +48,8 @@ router.patch('/:id_clientes/redifinir-industria', controller.patchRedifinirIndus
 
 router.patch('/:id_clientes/redifinir-jurisdicao', controller.patchRedifinirJurisdicao)
 
+router.patch('/:id_clientes/redifinir-escala-matriz', controller.patchRedifinirEscalaMatriz)
+
 router.patch('/:entidade/redifinir-senha', controller.patchClientesRedifinirSenha);
 
 router.patch('/:entidade/trocar-senha-padrao', controller.patchClientesTrocarSenhaPadrao);

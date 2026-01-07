@@ -128,9 +128,9 @@ module.exports.getClientesFrameworksId = async function(req, res, next) {
   try{
 
     logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
-    const {id_clientes} = req.params
+    const {id_clientes, clientes_frameworks_id} = req.params
 
-    const results = await models.getClientesFrameworksId(id_clientes);
+    const results = await models.getClientesFrameworksId(id_clientes, clientes_frameworks_id);
     res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -674,6 +674,54 @@ module.exports.patchRedifinirJurisdicao = async function(req, res, next) {
         const validar = await schemaEntidades.validate(dados)
         
         const result = await models.patchRedifinirJurisdicao(id_clientes, validar, req)
+
+        var wk = result.webhook
+        var lg = result.logs
+        var nt = result.notification
+        
+        delete result.webhook
+        delete result.logs
+        delete result.notification
+        
+        res.status(result.statusCode).json(result)
+
+        if(result.status == "sucesso"){
+          
+          sendRequestOnMicroservices({lg, nt, wk})
+
+        }
+        
+
+      } catch (error) {
+        console.error(error.message)
+        logger("SERVIDOR:patchClientes").error(`Erro ao actualizar o cliente ${error.message}`)
+
+        if(error?.path){
+          const rs = response("erro", 412, error.message);
+          res.status(rs.statusCode).json(rs)        
+        }else{  
+          const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+          res.status(rs.statusCode).json(rs)
+        }
+      }
+    
+}
+
+module.exports.patchRedifinirEscalaMatriz = async function(req, res, next) { 
+      try {
+
+        logger("SERVIDOR:patchClientes").info(`Iniciando actualização do cliente`)
+        const {id_clientes} = req.params
+        const dados = req.body
+
+        const schemaEntidades = yup.object().shape({
+          cliente_matriz_escala_id: yup.number().required()
+        })
+
+        logger("SERVIDOR:patchClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)
+        const validar = await schemaEntidades.validate(dados)
+        
+        const result = await models.patchRedifinirEscalaMatriz(id_clientes, validar, req)
 
         var wk = result.webhook
         var lg = result.logs
