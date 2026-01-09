@@ -3,7 +3,7 @@ const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
 const paginationRecords = require("../helpers/paginationRecords")
-const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
+const { listaDeCategoriasTruesFilteres, CategoriasComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
 module.exports.getListaDeCategorias = async function(pagina, limite, categoria) {
@@ -11,22 +11,22 @@ module.exports.getListaDeCategorias = async function(pagina, limite, categoria) 
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
 
-      const clientes = await database('lista_de_categoria_de_risco')
+      const listaDeCategorias = await database('lista_de_categoria_de_risco')
       .whereLike("categoria",`%${categoria}%`)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = paginationRecords(listaDeCategorias, pagina, limite)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('lista_de_categoria_de_risco')
+      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
+      const listaDeCategoriasLimite = await database('lista_de_categoria_de_risco')
       .whereLike("categoria",`%${categoria}%`)
       .limit(registros.limite)
       .offset(registros.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = listaDeCategoriasTruesFilteres(listaDeCategoriasLimite)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = listaDeCategoriasLimite.length
       registros.categoria = categoria
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
@@ -36,7 +36,54 @@ module.exports.getListaDeCategorias = async function(pagina, limite, categoria) 
 
   } catch (erro) {
       console.log(erro)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${erro.message}`)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar listaDeCategorias ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.getListaDeCategoriasComFrameworks = async function(pagina, limite, categoria) {
+  try {
+      
+      logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
+
+      const listaDeCategorias = await database('lista_de_categoria_de_risco')
+      .join("framework_risco_categoria","framework_risco_categoria.risco_categoria_id_fk","=","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco")
+      .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk")
+      .whereLike("categoria",`%${categoria}%`)
+      .orderBy('id_lista_de_categoria_de_risco','DESC')
+
+      const {registros} = paginationRecords(listaDeCategorias, pagina, limite)
+
+      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
+      const listaDeCategoriasLimite = await database('lista_de_categoria_de_risco')
+      .join("framework_risco_categoria","framework_risco_categoria.risco_categoria_id_fk","=","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco")
+      .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk")
+      .whereLike("categoria",`%${categoria}%`)
+      .limit(registros.limite)
+      .offset(registros.count)
+      .orderBy('id_lista_de_categoria_de_risco','DESC')
+
+      const listaDeCategoriasEvery = await database('lista_de_categoria_de_risco')
+      .whereLike("categoria",`%${categoria}%`)
+      .limit(registros.limite)
+      .offset(registros.count)
+      .orderBy('id_lista_de_categoria_de_risco','DESC')
+
+      const filtered = CategoriasComFrameworksTruesFilteres(listaDeCategoriasEvery, listaDeCategoriasLimite)
+
+      registros.total_apresentados = listaDeCategoriasLimite.length
+      registros.categoria = categoria
+
+      logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, filtered, "json", { registros });
+      return rs
+
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar listaDeCategorias ${erro.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -56,7 +103,7 @@ module.exports.getListaDeCategoriasId = async function(id_lista_de_categoria_de_
 
   } catch (erro) {
       console.log(erro)
-      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      logger("SERVIDOR:ClientesId").error(`Erro ao buscar listaDeCategorias por ID ${erro.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -120,7 +167,7 @@ module.exports.patchListaDeCategorias = async function(id_lista_de_categoria_de_
     
   } catch (erro) {
     console.log(erro)
-    logger("SERVIDOR:patchClientes").error(`Erro ao buscar clientes ${erro.message}`)
+    logger("SERVIDOR:patchClientes").error(`Erro ao buscar listaDeCategorias ${erro.message}`)
     const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
     return rs
   }
@@ -130,7 +177,7 @@ module.exports.patchListaDeCategorias = async function(id_lista_de_categoria_de_
 module.exports.deleteListaDeCategorias = async function(id_lista_de_categoria_de_risco, req) { 
   try {
 
-      logger("SERVIDOR:deleteClientes").debug(`Verificar se o clientes é do serviço GPO`)
+      logger("SERVIDOR:deleteClientes").debug(`Verificar se o listaDeCategorias é do serviço GPO`)
       const catergoriaVerify = await database('lista_de_categoria_de_risco').where({id_lista_de_categoria_de_risco})
 
       if(!catergoriaVerify.length){

@@ -8,6 +8,8 @@ router.get('/', controller.getJurisdicaoActiva);
 
 router.get('/com-frameworks', controller.getJurisdicaoActivaComFrameworks);
 
+router.get('/:jurisdicao_activa_id/com-frameworks', controller.getJurisdicaoActivaComFrameworksId);
+
 /* POST clientes listing. */
 
 router.post('/', controller.postJurisdicaoActiva);

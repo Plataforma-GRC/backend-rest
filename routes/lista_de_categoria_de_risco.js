@@ -6,6 +6,8 @@ const controller = require('../controllers/lista_de_categoria_de_risco');
 /* GET clientes listing. */
 router.get('/', controller.getListaDeCategorias);
 
+router.get('/com-frameworks', controller.getListaDeCategoriasComFrameworks);
+
 /* POST clientes listing. */
 
 router.post('/', controller.postListaDeCategorias);

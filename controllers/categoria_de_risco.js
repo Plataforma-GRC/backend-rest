@@ -61,8 +61,9 @@ module.exports.postCategoriaAoRisco = async function(req, res, next) {
 
       const dados =  req.body
 
+      const requiredIds = yup.number().required()
       const schemaCategoriaAoRisco = yup.object().shape({
-        categoria_risco: yup.number().required(),
+        categoria_risco: yup.array().of(requiredIds),
         materialidade: yup.string().required(),
         cliente_categorizado: yup.number().required()
       })

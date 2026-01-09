@@ -158,9 +158,10 @@ module.exports.postFrameworksEscolher = async function(req, res, next) {
 
       const dados =  req.body
 
+      const requiredIds = yup.number().required();
       const schemaFrameworks = yup.object().shape({
         clientes_id_fk: yup.number().required(),
-        frameworks_id_fk: yup.number().required()
+        frameworks_id_fk: yup.array().of(requiredIds)
       })
 
       logger("SERVIDOR:postClientes").debug(`Á validar os dados ${JSON.stringify(dados)}`)

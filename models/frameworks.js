@@ -196,12 +196,14 @@ module.exports.postFrameworksEscolher = async function(dados, req) {
       logger("SERVIDOR:postClientes").debug(`Verificar o cliente por email`)
       
       const resultEnt  = await database('clientes_frameworks')
-      .where({frameworks_id_fk: dados?.frameworks_id_fk})
+      .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
+      .whereIn('frameworks_id_fk', dados?.frameworks_id_fk)
       .andWhere({clientes_id_fk: dados?.clientes_id_fk})
       
       if(resultEnt.length > 0 ){
-        logger("SERVIDOR:postClientes").info(`Framework já escolhido`)
-        const rs = response("erro", 409, "Framework já escolhido");
+        const find = resultEnt.map(vl => vl.framework_nome)
+        logger("SERVIDOR:postClientes").info(`Framework já escolhido ${find}`)
+        const rs = response("erro", 409, `Framework já escolhido ${find}`);
         return rs
       }      
       

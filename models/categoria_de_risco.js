@@ -110,14 +110,17 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
       }
       
       const resultEnt  = await database('categoria_de_risco')
-      .where({cliente_categorizado: dados?.cliente_categorizado})
-      .andWhere({categoria_risco: dados?.categoria_risco})
+      .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
+      .whereIn('categoria_risco', dados?.categoria_risco)
+      .andWhere({cliente_categorizado: dados?.cliente_categorizado})
       
+
       if(resultEnt.length > 0 ){
-        logger("SERVIDOR:postClientes").info(`Configuração usada`)
-        const rs = response("erro", 409, "Configuração usada");
+        const find = resultEnt.map(vl => vl.categoria)
+        logger("SERVIDOR:postClientes").info(`Configuração já usada ${find}`)
+        const rs = response("erro", 409, `Configuração já usada ${find}`);
         return rs
-      }
+      } 
       
       
       await database('categoria_de_risco').insert(dados)

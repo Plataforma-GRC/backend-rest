@@ -56,7 +56,7 @@ module.exports.getJurisdicaoActivaComFrameworks = async function(pagina, limite,
       .join("framework","framework.framework_id", "=" ,"framework_jurisdicao.framework_id_fk")
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
-      .orderBy('jurisdicao_activa_id','DESC')
+      .orderBy('framework_id','DESC')
 
       const {registros} = paginationRecords(Jurisdicao, pagina, limite)
 
@@ -68,7 +68,7 @@ module.exports.getJurisdicaoActivaComFrameworks = async function(pagina, limite,
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .limit(registros.limite)
       .offset(registros.count)
-      .orderBy('jurisdicao_activa_id','DESC')
+      .orderBy('framework_id','DESC')
 
       const JurisdicaoEvery = await database('jurisdicao_activa')
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
@@ -85,6 +85,37 @@ module.exports.getJurisdicaoActivaComFrameworks = async function(pagina, limite,
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered, "json", { registros });
+      return rs
+
+
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:Clientes").error(`Erro ao buscar Jurisdicao ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.getJurisdicaoActivaComFrameworksId = async function(jurisdicao_activa_id) {
+  try {
+      
+      logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
+
+      const Jurisdicao = await database('jurisdicao_activa')
+      .join("framework_jurisdicao","framework_jurisdicao.jurisdicao_activa_id_fk","=","jurisdicao_activa.jurisdicao_activa_id")
+      .join("framework","framework.framework_id", "=" ,"framework_jurisdicao.framework_id_fk")
+      .where({jurisdicao_activa_id})
+      .orderBy('jurisdicao_activa_id','DESC')
+
+      const JurisdicaoEvery = await database('jurisdicao_activa')
+      .where({jurisdicao_activa_id})
+      .orderBy('jurisdicao_activa_id','DESC')
+
+      const filtered = JurisdicaoComFrameworksTruesFilteres(JurisdicaoEvery, Jurisdicao)
+
+      logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
+      const rs = response("sucesso", 200, filtered, "json");
       return rs
 
 

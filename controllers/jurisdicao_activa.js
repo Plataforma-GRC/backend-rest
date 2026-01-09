@@ -37,6 +37,24 @@ module.exports.getJurisdicaoActivaComFrameworks = async function(req, res, next)
     
 }
 
+module.exports.getJurisdicaoActivaComFrameworksId = async function(req, res, next) {
+  try{
+
+    logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
+    const {jurisdicao_activa_id} = req.params
+
+    const results = await models.getJurisdicaoActivaComFrameworksId(jurisdicao_activa_id);
+    res.status(results.statusCode).json(results)
+    
+  } catch (error) {
+    console.error(error.message)
+    const rs = response("erro", 400, `Algo aconteceu. Tente de novo, ${error.message}`);
+    res.status(rs.statusCode).json(rs)
+    logger("SERVIDOR:ClientesId").error(`Erro ao buscar cliente pelo Id ${error.message}`)
+  }
+    
+}
+
 module.exports.getJurisdicaoActivaId = async function(req, res, next) {
   try{
 

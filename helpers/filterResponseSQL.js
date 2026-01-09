@@ -641,6 +641,47 @@ module.exports.JurisdicaoComFrameworksTruesFilteres = function(resultAll = [], r
     
 }
 
+module.exports.CategoriasComFrameworksTruesFilteres = function(resultAll = [], resultSet = []){
+
+
+    const final = []
+    for(const rf of resultAll) {
+
+        const dados = {...rf, frameworks:[]}
+
+        
+        for (const dt of resultSet){
+            
+            delete dt.jurisdicao_activa_id
+            delete dt.jurisdicao_activa_time
+            delete dt.jurisdicao_activa_update
+            delete dt.jurisdicao_activa_id
+            delete dt.jurisdicao_activa_id
+            delete dt.framework_id_fk
+            delete dt.framework_jurisdicao_time
+            delete dt.framework_jurisdicao_update
+            delete dt.framework_tipo_id
+            delete dt.framework_orgao_id
+            delete dt.tipo_usuario
+            delete dt.framework_time
+            delete dt.framework_update
+
+            
+            if(dados?.id_lista_de_categoria_de_risco == dt?.risco_categoria_id_fk){
+                delete dt.jurisdicao_activa_id_fk
+                dados.frameworks.push(dt)
+            }
+            
+        }
+
+        final.push(dados)
+        
+    }
+
+    return final
+    
+}
+
 module.exports.escalasMatrizFilteres = function(resultAll = [], resultSet = []){
 
 
