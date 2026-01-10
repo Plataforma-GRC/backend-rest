@@ -112,8 +112,7 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
       const resultEnt  = await database('categoria_de_risco')
       .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
       .whereIn('categoria_risco', dados?.categoria_risco)
-      .andWhere({cliente_categorizado: dados?.cliente_categorizado})
-      
+      .andWhere({cliente_categorizado: dados?.cliente_categorizado})      
 
       if(resultEnt.length > 0 ){
         const find = resultEnt.map(vl => vl.categoria)
@@ -123,7 +122,8 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
       } 
       
       
-      await database('categoria_de_risco').insert(dados)
+      for (const fr of dados?.frameworks_id_fk)
+        await database('clientes_frameworks').insert({cliente_categorizado: dados?.cliente_categorizado, categoria_risco: fr})
       
       logger("SERVIDOR:Clientes").info(`Entidade criada com sucesso`)
       const rs = response("sucesso", 201, "Entidade criada com sucesso","json",{

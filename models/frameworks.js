@@ -205,9 +205,32 @@ module.exports.postFrameworksEscolher = async function(dados, req) {
         logger("SERVIDOR:postClientes").info(`Framework já escolhido ${find}`)
         const rs = response("erro", 409, `Framework já escolhido ${find}`);
         return rs
-      }      
+      }  
       
-      await database('clientes_frameworks').insert(dados)
+      const [resultEntFClienteJurisdicao]  = await database('clientes')
+      .where({id_clientes: dados?.clientes_id_fk})
+      
+      if(!resultEntFClienteJurisdicao?.cliente_jurisdicao_id){
+        logger("SERVIDOR:postClientes").info(`Cliente não tem uma jurisdição assossiada`)
+        const rs = response("erro", 409, `Cliente não tem uma jurisdição assossiada`);
+        return rs
+      } 
+      
+      const resultEntFrameworksJurisdicao  = await database('framework_jurisdicao')
+      .join("framework","framework.framework_id","=","framework_jurisdicao.framework_id_fk")
+      .whereIn('framework_id_fk', dados?.frameworks_id_fk)
+      .andWhere({jurisdicao_activa_id_fk: resultEntFClienteJurisdicao?.cliente_jurisdicao_id})
+      
+      if(!resultEntFrameworksJurisdicao.length){
+        const find = resultEntFrameworksJurisdicao.map(vl => vl.framework_nome)
+        logger("SERVIDOR:postClientes").info(`Frameworks não constam na sua jurisdição ${find}`)
+        const rs = response("erro", 409, `Frameworks não constam na sua jurisdição ${find}`);
+        return rs
+      } 
+      
+
+      for (const fr of dados?.frameworks_id_fk)
+        await database('clientes_frameworks').insert({clientes_id_fk: dados?.clientes_id_fk, frameworks_id_fk: fr})
       
       logger("SERVIDOR:Clientes").info(`Parametização criada com sucesso`)
       const rs = response("sucesso", 201, "Parametização criada com sucesso","json",{
