@@ -1,0 +1,3 @@
+[2026-01-11T03:24:31.552Z] INFO (SERVIDOR:REDIS/293329 on kluivert): A criar um client para redis://127.0.0.1
+[2026-01-11T03:24:32.150Z] DEBUG (SERVIDOR/293329 on kluivert): Iniciando o servidor na porta 1234
+[2026-01-11T03:24:32.152Z] INFO (SERVIDOR/293329 on kluivert): Servidor iniciado
