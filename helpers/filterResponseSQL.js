@@ -553,8 +553,30 @@ module.exports.clientesFrameworksFilteres = function(resultAll = [], resultSet =
 
 module.exports.clientesFrameworksIdFilteres = function(resultAll = [], resultSet = []){
 
-        const dados = {...resultAll, frameworks:[]}
+        const dados = {...resultAll, frameworks:[], jurisdicao: null, industria: null}
 
+        dados.jurisdicao = {
+            id_industrias_principal: resultAll?.id_industrias_principal,
+            industrias_principal_descricao: resultAll?.industrias_principal_descricao
+        }
+
+        delete dados?.industrias_principal_time
+        delete dados?.industrias_principal_update
+        delete dados?.id_industrias_principal
+        delete dados?.industrias_principal_descricao
+
+        dados.industria = {
+            jurisdicao_activa_id: resultAll?.jurisdicao_activa_id,
+            jurisdicao_orgao_regulador: resultAll?.jurisdicao_orgao_regulador,
+            jurisdicao_activa_pais: resultAll?.jurisdicao_activa_pais
+        }
+
+        delete dados?.jurisdicao_activa_time
+        delete dados?.jurisdicao_activa_update
+        delete dados?.jurisdicao_activa_id
+        delete dados?.jurisdicao_orgao_regulador
+        delete dados?.jurisdicao_activa_pais
+        
         
         for (const dt of resultSet){
             
@@ -587,6 +609,7 @@ module.exports.clientesFrameworksIdFilteres = function(resultAll = [], resultSet
             delete dt.clientes_frameworks_id
             delete dt.cliente_industria_id
             delete dt.cliente_jurisdicao_id
+            delete dt.cliente_matriz_escala_id
             
             
             if(dados?.id_clientes == dt?.clientes_id_fk){

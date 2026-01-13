@@ -41,7 +41,7 @@ Sentry.init({
 app.use(Sentry.Handlers.requestHandler());
 app.use(fileUploadApp);
 app.use(rateLimiter);
-app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(helmet({ crossOriginResourcePolicy: false })); 
 
 app.use(loggerMorgan("dev"));
 app.use(express.json({limit: '100mb'}));

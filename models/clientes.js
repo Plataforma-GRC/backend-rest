@@ -1,6 +1,7 @@
 const database = require('../config/database')
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+const {hash} =  require('crypto')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
@@ -91,6 +92,8 @@ module.exports.getClientesIdFrameworks = async function(id_clientes) {
 
       logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
       const [clientes] = await database('clientes')
+      .join("industrias_principais","industrias_principais.id_industrias_principal","=","clientes.cliente_industria_id")
+      .join("jurisdicao_activa","jurisdicao_activa.jurisdicao_activa_id","=","clientes.cliente_jurisdicao_id")
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
 
@@ -102,7 +105,9 @@ module.exports.getClientesIdFrameworks = async function(id_clientes) {
 
       const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
       
-      delete clientes?.senha
+      delete filtered?.senha
+
+      filtered.hashId = hash('sha1',String(filtered?.id_clientes))
     
       logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered || {});          
@@ -276,6 +281,8 @@ module.exports.getClientesFrameworksId = async function(id_clientes, clientes_fr
 
       logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
       const [clientes] = await database('clientes')
+      .join("industrias_principais","industrias_principais.id_industrias_principal","=","clientes.cliente_industria_id")
+      .join("jurisdicao_activa","jurisdicao_activa.jurisdicao_activa_id","=","clientes.cliente_jurisdicao_id")
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
 
@@ -288,7 +295,8 @@ module.exports.getClientesFrameworksId = async function(id_clientes, clientes_fr
 
       const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
       
-      delete clientes?.senha
+      delete filtered?.senha
+      filtered.hashId = hash('sha1',String(filtered?.id_clientes))
     
       logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered || {});          
