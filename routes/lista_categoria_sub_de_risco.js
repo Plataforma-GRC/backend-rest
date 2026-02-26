@@ -10,7 +10,7 @@ router.get('/:id_lista_categoria_sub_de_risco', controller.getListaCategoriaSubA
 
 router.get('/categoria/:categoria_de_risco_id_fk', controller.getClientesListaCategoriaSubAoRisco);
 
-//router.get('/categoria/:categoria_de_risco_id_fk/cliente/:cliente_categorizado_fk', controller.getClientesCategoriaDefinidoSubAoRisco);
+router.get('/categoria/:categoria_de_risco_id_fk/cliente/:cliente_categorizado_fk', controller.getClientesCategoriaDefinidoSubAoRisco);
 
 /* POST clientes listing. */
 

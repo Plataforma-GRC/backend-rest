@@ -50,7 +50,7 @@ module.exports.getListaDeCategoriasComFrameworks = async function(pagina, limite
 
       const listaDeCategorias = await database('lista_de_categoria_de_risco')
       .join("framework_risco_categoria","framework_risco_categoria.risco_categoria_id_fk","=","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco")
-      .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk")
+      .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk") 
       .whereLike("categoria",`%${categoria}%`)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 

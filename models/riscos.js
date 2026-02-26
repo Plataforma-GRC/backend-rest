@@ -93,6 +93,8 @@ module.exports.getClientesRiscos = async function(empresa_id) {
 
       logger("SERVIDOR:getriscosEntidade").debug("Á buscar os dados")
       const riscos = await database('riscos')
+      .join("departamento_clientes","departamento_clientes.id_departamento","=","riscos.departamento_organizacional_id")
+      .join("lista_de_categoria_de_risco","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","riscos.categoria_risco_fk_id")
       .where({empresa_id})
       .orderBy('riscos_id','DESC')  
     

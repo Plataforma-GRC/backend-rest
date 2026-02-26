@@ -3,7 +3,7 @@ const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
 const paginationRecords = require("../helpers/paginationRecords")
-const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
+const { clientesTruesFilteres, UsuarioCategoriasComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
 module.exports.getCategoriaAoRisco = async function(pagina, limite, categoria_risco, materialidade, cliente_categorizado) {
@@ -80,9 +80,16 @@ module.exports.getClientesCategoriaAoRisco = async function(cliente_categorizado
       .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
       .where({cliente_categorizado})
       .orderBy('id_categoria_de_risco','DESC')  
-    
+
+      const listaDeCategoriasLimite = await database('lista_de_categoria_de_risco')
+      .join("framework_risco_categoria","framework_risco_categoria.risco_categoria_id_fk","=","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco")
+      .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk")    
+
+      const filtered = UsuarioCategoriasComFrameworksTruesFilteres(categoria_de_risco, listaDeCategoriasLimite)
+      
+
       logger("SERVIDOR:getClientesEntidade").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, categoria_de_risco, "json");          
+      const rs = response("sucesso", 200, filtered, "json");          
       return rs
 
   } catch (erro) {
@@ -122,8 +129,8 @@ module.exports.postCategoriaAoRisco = async function(dados, req) {
       } 
       
       
-      for (const fr of dados?.frameworks_id_fk)
-        await database('clientes_frameworks').insert({cliente_categorizado: dados?.cliente_categorizado, categoria_risco: fr})
+      for (const fr of dados?.categoria_risco)
+        await database('categoria_de_risco').insert({cliente_categorizado: dados?.cliente_categorizado, categoria_risco: fr})
       
       logger("SERVIDOR:Clientes").info(`Entidade criada com sucesso`)
       const rs = response("sucesso", 201, "Entidade criada com sucesso","json",{

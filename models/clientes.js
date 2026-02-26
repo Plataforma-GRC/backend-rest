@@ -90,12 +90,19 @@ module.exports.getClientesID = async function(id_clientes) {
 module.exports.getClientesIdFrameworks = async function(id_clientes) {
   try {
 
-      logger("SERVIDOR:ClientesId").debug("Selecionar da base de dados")
+      logger("SERVIDOR:getClientesIdFrameworks").debug("Selecionar da base de dados")
+      
       const [clientes] = await database('clientes')
       .join("industrias_principais","industrias_principais.id_industrias_principal","=","clientes.cliente_industria_id")
       .join("jurisdicao_activa","jurisdicao_activa.jurisdicao_activa_id","=","clientes.cliente_jurisdicao_id")
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
+
+      if(!clientes?.id_clientes){
+        logger("SERVIDOR:getClientesIdFrameworks").info("Empresa não foi encontrada")
+        const rs = response("erro", 409, "Empresa não foi encontrada");
+        return rs    
+      }
 
       const clientesLimite = await database('clientes')
       .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
@@ -103,19 +110,24 @@ module.exports.getClientesIdFrameworks = async function(id_clientes) {
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
 
+      const [escalaMatriz] = await database('riscos_matriz_escala')
+      .where({risco_escala_id: clientes?.cliente_matriz_escala_id})
+
       const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
       
       delete filtered?.senha
 
+      
       filtered.hashId = hash('sha1',String(filtered?.id_clientes))
+      filtered.escalaMatriz = escalaMatriz
     
-      logger("SERVIDOR:ClientesId").info("Respondeu a solicitação")
+      logger("SERVIDOR:getClientesIdFrameworks").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered || {});          
       return rs
 
   } catch (erro) {
       console.log(erro)
-      logger("SERVIDOR:ClientesId").error(`Erro ao buscar clientes por ID ${erro.message}`)
+      logger("SERVIDOR:getClientesIdFrameworks").error(`Erro ao buscar clientes por ID ${erro.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }

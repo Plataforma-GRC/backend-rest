@@ -555,7 +555,7 @@ module.exports.clientesFrameworksIdFilteres = function(resultAll = [], resultSet
 
         const dados = {...resultAll, frameworks:[], jurisdicao: null, industria: null}
 
-        dados.jurisdicao = {
+        dados.industria= {
             id_industrias_principal: resultAll?.id_industrias_principal,
             industrias_principal_descricao: resultAll?.industrias_principal_descricao
         }
@@ -565,7 +565,7 @@ module.exports.clientesFrameworksIdFilteres = function(resultAll = [], resultSet
         delete dados?.id_industrias_principal
         delete dados?.industrias_principal_descricao
 
-        dados.industria = {
+        dados.jurisdicao = {
             jurisdicao_activa_id: resultAll?.jurisdicao_activa_id,
             jurisdicao_orgao_regulador: resultAll?.jurisdicao_orgao_regulador,
             jurisdicao_activa_pais: resultAll?.jurisdicao_activa_pais
@@ -692,6 +692,47 @@ module.exports.CategoriasComFrameworksTruesFilteres = function(resultAll = [], r
             
             if(dados?.id_lista_de_categoria_de_risco == dt?.risco_categoria_id_fk){
                 delete dt.jurisdicao_activa_id_fk
+                dados.frameworks.push(dt)
+            }
+            
+        }
+
+        final.push(dados)
+        
+    }
+
+    return final
+    
+}
+
+module.exports.UsuarioCategoriasComFrameworksTruesFilteres = function(resultAll = [], resultSet = []){
+
+
+    const final = []
+    for(const rf of resultAll) {
+
+        const dados = {...rf, frameworks:[]}
+
+        
+        for (const dt of resultSet){
+            
+            delete dt.categoria
+            delete dt.framework_risco_categoria_id
+            delete dt.lista_time
+            delete dt.lista_update
+            delete dt.framework_orgao_id_fk
+            delete dt.framework_id_fk
+            delete dt.framework_tipo_id_fk
+            delete dt.framework_jurisdicao_update
+            delete dt.framework_tipo_id
+            delete dt.framework_orgao_id
+            delete dt.tipo_usuario
+            delete dt.framework_time
+            delete dt.framework_update
+
+            
+            if(dados?.categoria_risco == dt?.risco_categoria_id_fk){
+                delete dt.risco_categoria_id_fk
                 dados.frameworks.push(dt)
             }
             
