@@ -504,6 +504,62 @@ module.exports.patchUsuarios = async function(req, res, next) {
     
   }
 
+module.exports.patchUsuariosBloquear = async function(req, res, next) {
+
+      try {
+
+        logger("SERVIDOR:patchUsuariosBloquear").info(`Iniciando o bloqueio de cliente`)
+        const {id_usuarios} = req.params
+        const result = await models.patchUsuariosBloquear(id_usuarios, req)
+
+        var wk = result.webhook
+        var lg = result.logs
+        var nt = result.notification
+        
+        delete result.webhook
+        delete result.logs
+        delete result.notification
+        
+        res.status(result.statusCode).json(result)
+        if(result.status == "sucesso"){          
+          sendRequestOnMicroservices({lg, nt, wk})
+        }
+
+      } catch (error) {
+        console.error(error.message)
+        logger("SERVIDOR:patchUsuariosBloquear").error(`Erro ao bloquear o cliente ${error.message}`)
+      }
+    
+}
+
+module.exports.patchUsuariosDesbloquear = async function(req, res, next) {  
+      try {
+
+        logger("SERVIDOR:patchUsuariosDesbloquear").info(`Iniciando o desbloqueio de cliente`)
+        const {id_usuarios} = req.params
+        const result = await models.patchUsuariosDesbloquear(id_usuarios, req)
+
+        var wk = result.webhook
+        var lg = result.logs
+        var nt = result.notification
+        
+        delete result.webhook
+        delete result.logs
+        delete result.notification
+        
+        res.status(result.statusCode).json(result)
+        if(result.status == "sucesso"){          
+          sendRequestOnMicroservices({lg, nt, wk})
+        }
+        
+
+      } catch (error) {
+        console.error(error.message)
+        logger("SERVIDOR:patchUsuariosDesbloquear").error(`Erro ao desbloquear o cliente ${error.message}`)
+      }
+    
+}
+
 module.exports.deleteUsuarios = async function(req, res, next) {
     try {  
 

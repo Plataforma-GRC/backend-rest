@@ -25,6 +25,10 @@ router.patch('/:id_usuarios/permissao/:permissoes_usuarios/permissoes', controll
 
 router.patch('/:id_usuarios', controller.patchUsuarios);
 
+router.patch('/bloquear/:id_usuarios', controller.patchUsuariosBloquear)
+
+router.patch('/desbloquear/:id_usuarios', controller.patchUsuariosDesbloquear)
+
 /* DELETE usuarios listing. */ 
 router.delete('/:id_usuarios', controller.deleteUsuarios);
 

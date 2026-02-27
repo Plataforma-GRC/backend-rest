@@ -10,7 +10,7 @@ const { usuariosFilteres } = require('../helpers/filterResponseSQL');
 module.exports.getUsuarios = async function(pagina, limite, total_registros, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em) {
   try {
 
-      logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
+      logger("SERVIDOR:Usuarios").debug("Selecionar da base de dados")
       const usuarios = await database("usuarios")
       .join("usuarios_funcoes", "usuarios_funcoes.id_usuarios_funcoes", "=", "usuarios.tipo_usuario")
       .whereLike("primeiro_nome_usuario",`%${primeiro_nome_usuario}%`)
@@ -51,7 +51,7 @@ module.exports.getUsuarios = async function(pagina, limite, total_registros, pri
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -73,7 +73,7 @@ module.exports.getUsuariosId = async function(id_usuarios) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -95,7 +95,7 @@ module.exports.getUsuariosClintes = async function(usuario_empresa_fk) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -132,7 +132,7 @@ module.exports.getUsuariosHash = async function(hash) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -164,7 +164,7 @@ module.exports.getUsuariosPermissoes = async function(id_usuarios) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -178,17 +178,17 @@ module.exports.postUsuarios = async function(dados, req) {
       });
 
       if (resultTipoReg.length > 0){
-        logger("SERVIDOR:postClientes").info(`Usuario já cadastrado!`)
+        logger("SERVIDOR:postUsuarios").info(`Usuario já cadastrado!`)
         const rs = response("erro", 409, "Usuario já cadastrado!");
         return rs
       }
 
-      const resultTipoClientes = await database("clientes").where({
-        id_clientes: dados.usuario_empresa_fk
+      const resultTipoUsuarios = await database("usuarios").where({
+        id_usuarios: dados.usuario_empresa_fk
       });
 
-      if (resultTipoClientes.length < 1){
-        logger("SERVIDOR:postClientes").info(`Esta empresa não é empresa!`)
+      if (resultTipoUsuarios.length < 1){
+        logger("SERVIDOR:postUsuarios").info(`Esta empresa não é empresa!`)
         const rs = response("erro", 409, "Esta empresa não é empresa!");
         return rs
       }
@@ -198,14 +198,14 @@ module.exports.postUsuarios = async function(dados, req) {
       }).andWhere({empresa_funcao_fk: dados.usuario_empresa_fk});
 
       if (resultTipoRegTipo.length < 1){
-        logger("SERVIDOR:postClientes").info(`Este tipo de função não é permitido!`)
+        logger("SERVIDOR:postUsuarios").info(`Este tipo de função não é permitido!`)
         const rs = response("erro", 409, "Este tipo de função não é permitido!");
         return rs
       }
 
-      logger("SERVIDOR:Clientes").debug(`Entidade criada com sucesso`)
+      logger("SERVIDOR:Usuarios").debug(`Entidade criada com sucesso`)
       await database("usuarios").insert(dados);
-      logger("SERVIDOR:Clientes").info(`Usuario cadastrado com sucesso`)
+      logger("SERVIDOR:Usuarios").info(`Usuario cadastrado com sucesso`)
       const rs = response("sucesso", 201, "Usuario cadastrado com sucesso","json",{
         logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "USUARIOS", informacao: dados, entidade: "01157"}
       });
@@ -214,7 +214,7 @@ module.exports.postUsuarios = async function(dados, req) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -229,7 +229,7 @@ module.exports.postUsuariosLogin = async function({ email_, senha_ }, req) {
 
       if (result.length == 0) {
 
-        logger("SERVIDOR:loginClientes").info("Perfil não encontrados")
+        logger("SERVIDOR:loginUsuarios").info("Perfil não encontrados")
         const rs = response("erro", 403, "Perfil não encontrados");
         return rs
 
@@ -240,22 +240,22 @@ module.exports.postUsuariosLogin = async function({ email_, senha_ }, req) {
 
             const login = new Date().toISOString().split('.')[0].replace('T',' ')
                 
-            logger("SERVIDOR:loginClientes").debug("Actualizar o hash de login")
+            logger("SERVIDOR:loginUsuarios").debug("Actualizar o hash de login")
             await database('usuarios')
             .where({email_}).update({login_usuario: login, hash_login: uuidv4()})
 
-            logger("SERVIDOR:loginClientes").debug("Buscar dados do cliente")
+            logger("SERVIDOR:loginUsuarios").debug("Buscar dados do cliente")
             const [resultNew]  = await database('usuarios').select("hash_login AS hash", "login_usuario AS login")
             .where({email_})
 
-            logger("SERVIDOR:loginClientes").info("Cliente logado com sucesso") 
+            logger("SERVIDOR:loginUsuarios").info("Usuario logado com sucesso") 
             const rs = response("sucesso", 202, {hash:resultNew.hash, ultimo_login: resultNew.login}, "json",{
               logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "LOGINUSER" , tabela: "USUARIOS", informacao: {email_}, entidade: "01157"}
             });
             return rs
 
         } else{
-          logger("SERVIDOR:loginClientes").info("Dados não encontrados")
+          logger("SERVIDOR:loginUsuarios").info("Dados não encontrados")
           const rs = response("erro", 401, "Dados não encontrados");
           return rs
         }
@@ -263,7 +263,7 @@ module.exports.postUsuariosLogin = async function({ email_, senha_ }, req) {
       }
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -278,13 +278,13 @@ module.exports.postUsuariosLogout = async function(id_usuarios, req) {
 
       if (result.length == 0) {
 
-        logger("SERVIDOR:loginClientes").info("Perfil não encontrados")
+        logger("SERVIDOR:loginUsuarios").info("Perfil não encontrados")
         const rs = response("erro", 403, "Perfil não encontrados");
         return rs
 
       }     
 
-      logger("SERVIDOR:loginClientes").info("Sessão terminada com sucesso") 
+      logger("SERVIDOR:loginUsuarios").info("Sessão terminada com sucesso") 
       const rs = response("sucesso", 202, "Sessão terminada com sucesso", "json",{
         logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "LOGOUTUSER" , tabela: "USUARIOS", informacao: {dados: result[0]}, entidade: "01157"}
       })
@@ -293,7 +293,7 @@ module.exports.postUsuariosLogout = async function(id_usuarios, req) {
       
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -308,7 +308,7 @@ module.exports.patchUsuariosPermissoes = async function(id_usuarios, permissoes_
 
       if (result.length == 0) {
 
-        logger("SERVIDOR:loginClientes").info("Perfil não encontrados")
+        logger("SERVIDOR:loginUsuarios").info("Perfil não encontrados")
         const rs = response("erro", 403, "Perfil não encontrados");
         return rs
 
@@ -324,7 +324,7 @@ module.exports.patchUsuariosPermissoes = async function(id_usuarios, permissoes_
         .where({ permissoes_usuarios: permissoes_usuarios })
         .update({ ...dados, actualizado_em_p });
 
-      logger("SERVIDOR:loginClientes").info("Actualização feita com sucesso") 
+      logger("SERVIDOR:loginUsuarios").info("Actualização feita com sucesso") 
       const rs = response("sucesso", 202, "Actualização feita com sucesso", "json",{
         logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "PERMISSES_USUARIOS", informacao: {id_usuarios, ...dados}, entidade: "01157"}
       })
@@ -333,7 +333,7 @@ module.exports.patchUsuariosPermissoes = async function(id_usuarios, permissoes_
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
@@ -348,18 +348,18 @@ module.exports.patchUsuarios = async function(id_usuarios, dados, req) {
 
       if (result.length == 0) {
 
-        logger("SERVIDOR:loginClientes").info("Perfil não encontrados")
+        logger("SERVIDOR:loginUsuarios").info("Perfil não encontrados")
         const rs = response("erro", 403, "Perfil não encontrados");
         return rs
 
       }
 
-      const resultTipoClientes = await database("clientes").where({
-        id_clientes: dados.usuario_empresa_fk
+      const resultTipoUsuarios = await database("usuarios").where({
+        id_usuarios: dados.usuario_empresa_fk
       });
 
-      if (resultTipoClientes.length < 1){
-        logger("SERVIDOR:postClientes").info(`Esta empresa não é empresa!`)
+      if (resultTipoUsuarios.length < 1){
+        logger("SERVIDOR:postUsuarios").info(`Esta empresa não é empresa!`)
         const rs = response("erro", 409, "Esta empresa não é empresa!");
         return rs
       }
@@ -369,7 +369,7 @@ module.exports.patchUsuarios = async function(id_usuarios, dados, req) {
       }).andWhere({empresa_funcao_fk: dados.usuario_empresa_fk});
 
       if (resultTipoRegTipo.length < 1){
-        logger("SERVIDOR:postClientes").info(`Este tipo de função não é permitido!`)
+        logger("SERVIDOR:postUsuarios").info(`Este tipo de função não é permitido!`)
         const rs = response("erro", 409, "Este tipo de função não é permitido!");
         return rs
       }
@@ -383,7 +383,7 @@ module.exports.patchUsuarios = async function(id_usuarios, dados, req) {
         .where({ id_usuarios })
         .update({ ...dados, actualizado_em });
       
-      logger("SERVIDOR:loginClientes").info("Actualização feita com sucesso") 
+      logger("SERVIDOR:loginUsuarios").info("Actualização feita com sucesso") 
       const rs = response("sucesso", 202, "Actualização feita com sucesso", "json",{
         logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "USUARIOS", informacao: {id_usuarios, ...dados}, entidade: "01157"}
       })
@@ -392,11 +392,83 @@ module.exports.patchUsuarios = async function(id_usuarios, dados, req) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
 };
+
+module.exports.patchUsuariosBloquear = async function(id_usuarios, req) {
+  try {
+
+      const cliente_update = new Date()
+      .toISOString()
+      .replace('T',' ')
+      .substr(0,19)
+
+      logger("SERVIDOR:patchUsuariosBloquear").info(`Verificar o cliente pelo Id ${id_usuarios}`)
+      const cliente = await database('usuarios').where({id_usuarios})
+
+      if(!cliente.length){
+        logger("SERVIDOR:patchUsuariosBloquear").info("Usuario não foi encontrado")
+        const rs = response("erro", 409, "Usuario não foi encontrado");
+        return rs    
+      }
+
+      logger("SERVIDOR:patchUsuariosBloquear").info(`Actualizando para bloquear`)
+      await database('usuarios').where({id_usuarios}).update({acesso:'0', cliente_update}) 
+
+      logger("SERVIDOR:patchUsuariosBloquear").info(`Usuario bloqueado com sucesso`)
+      const rs = response("sucesso", 202, "Usuario bloqueado com sucesso", "json", {
+        notification: {efeito: {empresa: cliente[0].nome_empresa, email: cliente[0].email}, para:"bloququeioDeContaADM", mensagem: 'null', canal:"email"},
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DESATIVE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].id_usuarios, id_usuarios}, entidade: cliente[0].id_usuarios}
+      });
+      return rs
+    
+  } catch (erro) {
+      console.log(erro)
+      logger("SERVIDOR:patchUsuariosBloquear").error(`Erro ao bloquear o cliente ${erro.message}`)
+      const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+      return rs
+  }
+    
+}
+
+module.exports.patchUsuariosDesbloquear = async function(id_usuarios, req) {
+  try {
+
+      const cliente_update = new Date()
+      .toISOString()
+      .replace('T',' ')
+      .substr(0,19)
+
+      logger("SERVIDOR:patchUsuariosDesbloquear").info(`Verificar o cliente pelo Id ${id_usuarios}`)
+      const cliente = await database('usuarios').where({id_usuarios})
+
+      if(!cliente.length){
+        logger("SERVIDOR:patchUsuariosDesbloquear").info("Usuario não foi encontrado")
+        const rs = response("erro", 409, "Usuario não foi encontrado");
+        return rs    
+      }
+
+      logger("SERVIDOR:patchUsuariosDesbloquear").info(`Actualizando para desbloquear`)
+      await database('usuarios').where({id_usuarios}).update({acesso:'1', cliente_update})
+      
+      logger("SERVIDOR:patchUsuariosDesbloquear").info(`Usuario desbloqueado com sucesso`)
+      const rs = response("sucesso", 202, "Usuario desbloqueado com sucesso", "json", {
+        notification: {efeito: {empresa: cliente[0].nome_empresa, email: cliente[0].email}, para:"desbloququeioDeContaADM", mensagem: 'null', canal:"email"},
+        logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "ACTIVE" , tabela: "CLIENTES", informacao: {entidade: cliente[0].id_usuarios, id_usuarios}, entidade: cliente[0].id_usuarios}
+      });
+      return rs
+    
+  } catch (erro) {
+    console.log(erro)
+    logger("SERVIDOR:patchUsuariosDesbloquear").error(`Erro ao desbloquear o cliente ${erro.message}`)
+    const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
+    return rs
+  }
+    
+}
 
 module.exports.deleteUsuarios = async function(id_usuarios, req) {
   try {
@@ -405,7 +477,7 @@ module.exports.deleteUsuarios = async function(id_usuarios, req) {
 
       if (dados.length == 0) {
 
-        logger("SERVIDOR:loginClientes").info("Perfil não encontrados")
+        logger("SERVIDOR:loginUsuarios").info("Perfil não encontrados")
         const rs = response("erro", 403, "Perfil não encontrados");
         return rs
 
@@ -413,7 +485,7 @@ module.exports.deleteUsuarios = async function(id_usuarios, req) {
 
       await database("usuarios").where({ id_usuarios }).del();
 
-      logger("SERVIDOR:loginClientes").info("Usuario excluido feita com sucesso") 
+      logger("SERVIDOR:loginUsuarios").info("Usuario excluido feita com sucesso") 
       const rs = response("sucesso", 202, "Usuario excluido feita com sucessoo", "json",{
         logs: {ip: req.ip, verbo_rota_API: req.method, rota_API: req.originalUrl, tipo: "DEFAULT" , tabela: "USUARIOS", informacao: {id_usuarios, ...dados[0]}, entidade: "01157"}
       })
@@ -422,7 +494,7 @@ module.exports.deleteUsuarios = async function(id_usuarios, req) {
 
   } catch (error) {
       console.log(error)
-      logger("SERVIDOR:Clientes").error(`Erro ao buscar clientes ${error.message}`)
+      logger("SERVIDOR:Usuarios").error(`Erro ao buscar usuarios ${error.message}`)
       const rs = response("erro", 400, 'Algo aconteceu. Tente de novo');
       return rs
   }
