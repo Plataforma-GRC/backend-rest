@@ -66,23 +66,23 @@ app.get("/debug-sentry", debugSentry);
 app.use(validadeTokenApp);
 
 app.get("/v1/", responseIndex);
-app.use("/v1/apetite-ao-risco", apetiteRouter);
-app.use("/v1/apresentacao-cliente", apresentacaoClienteRouter);
-app.use("/v1/categoria-ao-risco", categoriaAoRistRouter);
-app.use("/v1/clientes", clientesRouter);
-app.use("/v1/colaboradores-de-consentimentos", colaboradoresDeConsentimentoRouter);
-app.use("/v1/departamentos-clientes", departamentoClientesRouter);
+app.use("/v1/appetite-for-risk", apetiteRouter);
+app.use("/v1/client-presentation", apresentacaoClienteRouter);
+app.use("/v1/risk-category", categoriaAoRistRouter);
+app.use("/v1/customers", clientesRouter);
+app.use("/v1/consent-gatherers", colaboradoresDeConsentimentoRouter);
+app.use("/v1/customer-departments", departamentoClientesRouter);
 app.use("/v1/frameworks", frameworksRouter);
-app.use("/v1/industrias-principais", industriasPrincipaisRouter)
-app.use("/v1/jurisdicao-activa", jurisdicaoRouter)
-app.use("/v1/lista-de-categoria-de-risco", listaDeCategoriasRouter);
-app.use("/v1/lista-sub-categoria-ao-risco", listaCategoriaSubAoRistRouter);
-app.use("/v1/matriz-de-risco", escalaMatrizRouter);
-app.use("/v1/perguntas-categorias", perguntasCategoriasRouter);
-app.use("/v1/respostas-perguntas-categorias", respostasPerguntasCategoriasRouter);
-app.use("/v1/riscos", riscosRouter)
-app.use("/v1/usuarios", usuariosRouter)
-app.use("/v1/usuarios-funcoes", usuariosFuncoesRouter)
+app.use("/v1/main-industries", industriasPrincipaisRouter)
+app.use("/v1/active-jurisdiction", jurisdicaoRouter)
+app.use("/v1/risk-category-list", listaDeCategoriasRouter);
+app.use("/v1/list-sub-category-at-risk", listaCategoriaSubAoRistRouter);
+app.use("/v1/risk-matrix", escalaMatrizRouter);
+app.use("/v1/questions-categories", perguntasCategoriasRouter);
+app.use("/v1/answers-questions-categories", respostasPerguntasCategoriasRouter);
+app.use("/v1/risks", riscosRouter)
+app.use("/v1/users", usuariosRouter)
+app.use("/v1/users-functions", usuariosFuncoesRouter)
 
 app.use(timeoutApp); 
 
