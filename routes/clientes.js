@@ -6,15 +6,15 @@ const controller = require('../controllers/clientes');
 /* GET clientes listing. */
 router.get('/', controller.getClientes); 
 
-router.get('/frameworks/todos', controller.getClientesFrameworks);
+router.get('/frameworks/every', controller.getClientesFrameworks);
 
 router.get('/:id_clientes', controller.getClientesId);
 
-router.get('/:id_clientes/frameworks/todos', controller.getClientesIdFrameworks);
+router.get('/:id_clientes/frameworks/every', controller.getClientesIdFrameworks);
 
-router.get('/:id_clientes/frameworks/todos/:clientes_frameworks_id', controller.getClientesFrameworksId);
+router.get('/:id_clientes/frameworks/every/:clientes_frameworks_id', controller.getClientesFrameworksId);
 
-router.get('/entidade/:numero_entidade', controller.getClientesEntidade);
+router.get('/customer/:numero_entidade', controller.getClientesEntidade);
 
 router.get('/hash/:hash', controller.getClientesHash); 
 
@@ -46,7 +46,7 @@ router.patch('/:id_clientes', controller.patchClientes)
 
 router.patch('/:id_clientes/redifinir-industria', controller.patchRedifinirIndustria)
 
-router.patch('/:id_clientes/redifinir-jurisdicao', controller.patchRedifinirJurisdicao)
+router.patch('/:id_clientes/redefine-jurisdiction', controller.patchRedifinirJurisdicao)
 
 router.patch('/:id_clientes/redifinir-escala-matriz', controller.patchRedifinirEscalaMatriz)
 
@@ -56,7 +56,7 @@ router.patch('/:entidade/trocar-senha-padrao', controller.patchClientesTrocarSen
 
 router.patch('/:entidade/verificar-senha-actual', controller.patchClientesVerificarSenhaActual);
 
-router.patch('/:entidade/alterar-senha', controller.patchClientesAlterarSenha);
+router.patch('/:entidade/change-password', controller.patchClientesAlterarSenha);
 
 router.patch('/mudar/foto/:entidade', controller.mudarFotoClientes);
 
