@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -19,30 +19,30 @@ module.exports.getFrameworks = async function(page, limit, framework_nome, frame
       .whereLike("framework_status",`%${framework_status}%`)
       .orderBy('framework_id','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('framework')
       .whereLike("framework_nome",`%${framework_nome}%`)
       .whereLike("framework_sigla",`%${framework_sigla}%`)
       .whereLike("framework_descricao",`%${framework_descricao}%`)
       .whereLike("framework_ano",`%${framework_ano}%`)
       .whereLike("framework_status",`%${framework_status}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('framework_id','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.framework_nome = framework_nome
-      registros.framework_sigla = framework_sigla
-      registros.framework_descricao = framework_descricao
-      registros.framework_ano = framework_ano
-      registros.framework_status = framework_status
+      records.total_apresentados = clienteslimit.length
+      records.framework_nome = framework_nome
+      records.framework_sigla = framework_sigla
+      records.framework_descricao = framework_descricao
+      records.framework_ano = framework_ano
+      records.framework_status = framework_status
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { listaDeCategoriasTruesFilteres, CategoriasComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -15,22 +15,22 @@ module.exports.getListaDeCategorias = async function(page, limit, categoria) {
       .whereLike("categoria",`%${categoria}%`)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const {registros} = pagetionRecords(listaDeCategorias, page, limit)
+      const {records} = paginationRecords(listaDeCategorias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const listaDeCategoriaslimit = await database('lista_de_categoria_de_risco')
       .whereLike("categoria",`%${categoria}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
       const filtered = listaDeCategoriasTruesFilteres(listaDeCategoriaslimit)
 
-      registros.total_apresentados = listaDeCategoriaslimit.length
-      registros.categoria = categoria
+      records.total_apresentados = listaDeCategoriaslimit.length
+      records.categoria = categoria
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 
@@ -54,30 +54,30 @@ module.exports.getListaDeCategoriasComFrameworks = async function(page, limit, c
       .whereLike("categoria",`%${categoria}%`)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const {registros} = pagetionRecords(listaDeCategorias, page, limit)
+      const {records} = paginationRecords(listaDeCategorias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const listaDeCategoriaslimit = await database('lista_de_categoria_de_risco')
       .join("framework_risco_categoria","framework_risco_categoria.risco_categoria_id_fk","=","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco")
       .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk")
       .whereLike("categoria",`%${categoria}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
       const listaDeCategoriasEvery = await database('lista_de_categoria_de_risco')
       .whereLike("categoria",`%${categoria}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
       const filtered = CategoriasComFrameworksTruesFilteres(listaDeCategoriasEvery, listaDeCategoriaslimit)
 
-      registros.total_apresentados = listaDeCategoriaslimit.length
-      registros.categoria = categoria
+      records.total_apresentados = listaDeCategoriaslimit.length
+      records.categoria = categoria
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

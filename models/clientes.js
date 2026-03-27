@@ -5,7 +5,7 @@ const {hash} =  require('crypto')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres, clientesFrameworksFilteres, clientesFrameworksIdFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -24,9 +24,9 @@ module.exports.getClientes = async function(page, limit, nome_empresa, nif, emai
       .whereLike("cliente_time",`%${cliente_time}%`)
       .orderBy('id_clientes','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('clientes')
       .whereLike("nome_empresa",`%${String(nome_empresa).toUpperCase()}%`)
       .whereLike("nif",`%${nif}%`)
@@ -35,23 +35,23 @@ module.exports.getClientes = async function(page, limit, nome_empresa, nif, emai
       .whereLike("contacto",`%${contacto}%`)
       .whereLike("contacto_2",`%${contacto_2}%`)
       .whereLike("cliente_time",`%${cliente_time}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_clientes','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.nome_empresa = nome_empresa
-      registros.nif = nif
-      registros.email = email
-      registros.email_2 = email_2
-      registros.contacto = contacto
-      registros.contacto_2 = contacto_2
-      registros.cliente_time = cliente_time
+      records.total_apresentados = clienteslimit.length
+      records.nome_empresa = nome_empresa
+      records.nif = nif
+      records.email = email
+      records.email_2 = email_2
+      records.contacto = contacto
+      records.contacto_2 = contacto_2
+      records.cliente_time = cliente_time
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 
@@ -244,9 +244,9 @@ module.exports.getClientesFrameworks = async function(page, limit, nome_empresa,
       .whereLike("cliente_time",`%${cliente_time}%`)
       .orderBy('id_clientes','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('clientes')
       .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
       .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
@@ -257,8 +257,8 @@ module.exports.getClientesFrameworks = async function(page, limit, nome_empresa,
       .whereLike("contacto",`%${contacto}%`)
       .whereLike("contacto_2",`%${contacto_2}%`)
       .whereLike("cliente_time",`%${cliente_time}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_clientes','DESC')
 
 
@@ -266,17 +266,17 @@ module.exports.getClientesFrameworks = async function(page, limit, nome_empresa,
 
       const filtered = clientesFrameworksFilteres(clientesAll, clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.nome_empresa = nome_empresa
-      registros.nif = nif
-      registros.email = email
-      registros.email_2 = email_2
-      registros.contacto = contacto
-      registros.contacto_2 = contacto_2
-      registros.cliente_time = cliente_time
+      records.total_apresentados = clienteslimit.length
+      records.nome_empresa = nome_empresa
+      records.nif = nif
+      records.email = email
+      records.email_2 = email_2
+      records.contacto = contacto
+      records.contacto_2 = contacto_2
+      records.cliente_time = cliente_time
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
   } catch (erro) {
@@ -394,8 +394,8 @@ module.exports.recuperarSenha = async function(email, canal, req) {
         
     }else{
     
-      logger("SERVIDOR:recuperarSenha").info(`Não conseguimos seu E-mail nos nossos registros`)
-      const rs = response("erro", 409, 'Não conseguimos seu E-mail nos nossos registros');
+      logger("SERVIDOR:recuperarSenha").info(`Não conseguimos seu E-mail nos nossos records`)
+      const rs = response("erro", 409, 'Não conseguimos seu E-mail nos nossos records');
       return rs             
       
     }    

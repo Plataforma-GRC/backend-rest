@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -15,22 +15,22 @@ module.exports.getIndustriasPrincipais = async function(page, limit, industrias_
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
       .orderBy('id_industrias_principal','DESC')
 
-      const {registros} = pagetionRecords(Industrias, page, limit)
+      const {records} = paginationRecords(Industrias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('industrias_principais')
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_industrias_principal','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.industrias_principal_descricao = industrias_principal_descricao
+      records.total_apresentados = clienteslimit.length
+      records.industrias_principal_descricao = industrias_principal_descricao
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 
@@ -52,22 +52,22 @@ module.exports.getIndustriasPrincipaisComFrameworks = async function(page, limit
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
       .orderBy('id_industrias_principal','DESC')
 
-      const {registros} = pagetionRecords(Industrias, page, limit)
+      const {records} = paginationRecords(Industrias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('industrias_principais')
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_industrias_principal','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.industrias_principal_descricao = industrias_principal_descricao
+      records.total_apresentados = clienteslimit.length
+      records.industrias_principal_descricao = industrias_principal_descricao
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

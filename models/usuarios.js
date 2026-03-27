@@ -3,11 +3,11 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetion = require("../constants/pagetion");
-const pagetionRecords = require("../helpers/pagetionRecords");
+const pagination = require("../constants/pagination");
+const paginationRecords = require("../helpers/paginationRecords");
 const { usuariosFilteres } = require('../helpers/filterResponseSQL');
 
-module.exports.getUsuarios = async function(page, limit, total_registros, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em) {
+module.exports.getUsuarios = async function(page, limit, total_records, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em) {
   try {
 
       logger("SERVIDOR:Usuarios").debug("Selecionar da base de dados")
@@ -19,10 +19,10 @@ module.exports.getUsuarios = async function(page, limit, total_registros, primei
       .whereLike("acesso",`%${acesso}%`)
       .whereLike("tipo_usuario",`%${tipo_usuario}%`)
       .whereLike("cadastrado_em",`%${cadastrado_em}%`)
-      .limit(total_registros || pagetion.total_limit)
+      .limit(total_records || pagination.total_limit)
       .orderBy("id_usuarios", "DESC");
 
-      const {registros} = pagetionRecords(usuarios, page, limit)
+      const {records} = paginationRecords(usuarios, page, limit)
 
       const usuarioslimit = await database("usuarios")
       .join("usuarios_funcoes", "usuarios_funcoes.id_usuarios_funcoes", "=", "usuarios.tipo_usuario")
@@ -32,21 +32,21 @@ module.exports.getUsuarios = async function(page, limit, total_registros, primei
       .whereLike("acesso",`%${acesso}%`)
       .whereLike("tipo_usuario",`%${tipo_usuario}%`)
       .whereLike("cadastrado_em",`%${cadastrado_em}%`)
-      .limit(total_registros || pagetion.total_limit)
+      .limit(total_records || pagination.total_limit)
       .orderBy("id_usuarios", "DESC");
 
       const filtered = usuariosFilteres(usuarioslimit)
       
-      registros.total_apresentados = usuarioslimit.length
-      registros.primeiro_nome_usuario = primeiro_nome_usuario
-      registros.segundo_nome_usuario = segundo_nome_usuario
-      registros.acesso = acesso
-      registros.tipo_usuario = tipo_usuario
-      registros.cadastrado_em = cadastrado_em
-      registros.email = email
+      records.total_apresentados = usuarioslimit.length
+      records.primeiro_nome_usuario = primeiro_nome_usuario
+      records.segundo_nome_usuario = segundo_nome_usuario
+      records.acesso = acesso
+      records.tipo_usuario = tipo_usuario
+      records.cadastrado_em = cadastrado_em
+      records.email = email
 
       logger("SERVIDOR:getAfiliados").info("Respondeu a requisição");
-      const rs = response("sucesso", 200, filtered, 'json', {registros})
+      const rs = response("sucesso", 200, filtered, 'json', {records})
       return rs;
 
   } catch (error) {

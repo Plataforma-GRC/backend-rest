@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres, UsuarioCategoriasComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -18,27 +18,27 @@ module.exports.getCategoriaAoRisco = async function(page, limit, categoria_risco
       .whereLike("cliente_categorizado",`%${cliente_categorizado}%`)
       .orderBy('id_categoria_de_risco','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('categoria_de_risco')
       .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","categoria_de_risco.categoria_risco")
       .whereLike("categoria_risco",`%${categoria_risco}%`)
       .whereLike("materialidade",`%${materialidade}%`)
       .whereLike("cliente_categorizado",`%${cliente_categorizado}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_categoria_de_risco','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.categoria_risco = categoria_risco
-      registros.materialidade = materialidade
-      registros.cliente_categorizado = cliente_categorizado
+      records.total_apresentados = clienteslimit.length
+      records.categoria_risco = categoria_risco
+      records.materialidade = materialidade
+      records.cliente_categorizado = cliente_categorizado
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

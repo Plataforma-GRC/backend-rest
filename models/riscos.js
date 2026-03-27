@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { riscosTruesFilteres } = require('../helpers/filterResponseSQL');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
@@ -24,9 +24,9 @@ module.exports.getRiscos = async function(page, limit, codigo_risco, titulo, des
       .whereLike("risco_time",`%${risco_time}%`)
       .orderBy('riscos_id','DESC')
 
-      const {registros} = pagetionRecords(riscos, page, limit)
+      const {records} = paginationRecords(riscos, page, limit)
 
-      logger("riscos").debug(`Buscar todos riscos no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("riscos").debug(`Buscar todos riscos no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const riscoslimit = await database('riscos')
       .whereLike("codigo_risco",`%${codigo_risco}%`)
       .whereLike("titulo",`%${titulo}%`)
@@ -37,25 +37,25 @@ module.exports.getRiscos = async function(page, limit, codigo_risco, titulo, des
       .whereLike("responsavel",`%${responsavel}%`)
       .whereLike("status_riscos",`%${status_riscos}%`)
       .whereLike("risco_time",`%${risco_time}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('riscos_id','DESC')
 
       const filtered = riscosTruesFilteres(riscoslimit)
 
-      registros.total_apresentados = riscoslimit.length
-      registros.codigo_risco = codigo_risco
-      registros.titulo = titulo
-      registros.descricao_risco = descricao_risco
-      registros.causa = causa
-      registros.consequencia = consequencia
-      registros.score = score
-      registros.responsavel = responsavel
-      registros.status_riscos = status_riscos
-      registros.risco_time = risco_time
+      records.total_apresentados = riscoslimit.length
+      records.codigo_risco = codigo_risco
+      records.titulo = titulo
+      records.descricao_risco = descricao_risco
+      records.causa = causa
+      records.consequencia = consequencia
+      records.score = score
+      records.responsavel = responsavel
+      records.status_riscos = status_riscos
+      records.risco_time = risco_time
 
       logger("SERVIDOR:riscos").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

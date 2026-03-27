@@ -9,8 +9,8 @@ const StrengthSchecker = require('../helpers/StrengthSchecker');
 module.exports.getUsuarios = async function(req, res, next) { 
   try {  
       logger("SERVIDOR:").info(`Buscar os afiliados`)
-      const {page, limit, total_registros, primeiro_nome_usuario = '', segundo_nome_usuario = '', email = '', acesso = '', tipo_usuario = '', cadastrado_em = ''} = req.query
-      const results = await models.getUsuarios(page, limit, total_registros, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em)
+      const {page, limit, total_records, primeiro_nome_usuario = '', segundo_nome_usuario = '', email = '', acesso = '', tipo_usuario = '', cadastrado_em = ''} = req.query
+      const results = await models.getUsuarios(page, limit, total_records, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em)
       res.status(results.statusCode).json(results)
 
   } catch (error) {
@@ -78,8 +78,8 @@ module.exports.getUsuariosPermissoes = async function(req, res, next) {
 
       logger("SERVIDOR:").info(`Buscar os afiliados`)
       const {id_usuarios} = req.params
-      const {page, limit, total_registros, nome_usuario = '', email = '', tipo_nome_usuario = ''} = req.query
-      const results = await models.getUsuariosPermissoes(id_usuarios, page, limit, total_registros, nome_usuario, email , tipo_nome_usuario)
+      const {page, limit, total_records, nome_usuario = '', email = '', tipo_nome_usuario = ''} = req.query
+      const results = await models.getUsuariosPermissoes(id_usuarios, page, limit, total_records, nome_usuario, email , tipo_nome_usuario)
       res.status(results.statusCode).json(results)
 
   } catch (error) {

@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -16,24 +16,24 @@ module.exports.getDepartamentosClientes = async function(page, limit, empresa_do
       .whereLike("empresa_dona",`%${empresa_dona}%`)
       .orderBy('id_departamento','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('departamento_clientes')
       .whereLike("departamento",`%${departamento}%`)
       .whereLike("empresa_dona",`%${empresa_dona}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_departamento','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.departamento = departamento
-      registros.empresa_dona = empresa_dona
+      records.total_apresentados = clienteslimit.length
+      records.departamento = departamento
+      records.empresa_dona = empresa_dona
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -18,27 +18,27 @@ module.exports.getListaCategoriaSubAoRisco = async function(page, limit, descric
       .whereLike("categoria_de_risco_id_fk",`%${categoria_de_risco_id_fk}%`)
       .orderBy('id_lista_categoria_sub_de_risco','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('lista_categoria_sub_de_risco')
       .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","lista_categoria_sub_de_risco.categoria_de_risco_id_fk")
       .whereLike("descricao_categoria_sub",`%${descricao_categoria_sub}%`)
       //.whereLike("cliente_categorizado_fk",`%${cliente_categorizado_fk}%`)
       //.whereLike("categoria_de_risco_id_fk",`%${categoria_de_risco_id_fk}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_lista_categoria_sub_de_risco','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.descricao_categoria_sub = descricao_categoria_sub
-      //registros.cliente_categorizado_fk = cliente_categorizado_fk
-      registros.categoria_de_risco_id_fk = categoria_de_risco_id_fk
+      records.total_apresentados = clienteslimit.length
+      records.descricao_categoria_sub = descricao_categoria_sub
+      //records.cliente_categorizado_fk = cliente_categorizado_fk
+      records.categoria_de_risco_id_fk = categoria_de_risco_id_fk
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

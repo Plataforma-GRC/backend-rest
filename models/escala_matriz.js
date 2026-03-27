@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres, escalasMatrizFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -14,20 +14,20 @@ module.exports.getEscalaMatriz = async function(page, limit) {
       const Industrias = await database('riscos_matriz')
       .orderBy('risco_matriz_id','DESC')
 
-      const {registros} = pagetionRecords(Industrias, page, limit)
+      const {records} = paginationRecords(Industrias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('riscos_matriz')
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('risco_matriz_id','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
+      records.total_apresentados = clienteslimit.length
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

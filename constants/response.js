@@ -1,16 +1,16 @@
 const clientRedis =  require('../infra/redis');
 const path = require("path");
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
-module.exports = function(status, statusCode, mensagem, formato = 'json', other){
+module.exports = function(status, statusCode, message, format = 'json', other){
 
     const URLKey = other?.url
 
     const response = {
         status,
         statusCode,
-        formato,
+        format,
         ...other,
-        mensagem,
+        message,
     };
 
     (async function(){

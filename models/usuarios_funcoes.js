@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -17,25 +17,25 @@ module.exports.getUsuariosFuncoes = async function(page, limit, usuario_funcao, 
       .whereLike("empresa_funcao_fk",`%${empresa_funcao_fk}%`)
       .orderBy('id_usuarios_funcoes','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('usuarios_funcoes')
       .join('clientes',"clientes.id_clientes","=","usuarios_funcoes.empresa_funcao_fk")
       .whereLike("usuario_funcao",`%${usuario_funcao}%`)
       .whereLike("empresa_funcao_fk",`%${empresa_funcao_fk}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_usuarios_funcoes','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.empresa_funcao_fk = usuario_funcao
-      registros.empresa_funcao_fk = empresa_funcao_fk
+      records.total_apresentados = clienteslimit.length
+      records.empresa_funcao_fk = usuario_funcao
+      records.empresa_funcao_fk = empresa_funcao_fk
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 

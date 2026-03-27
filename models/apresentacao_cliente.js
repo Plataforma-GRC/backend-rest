@@ -2,7 +2,7 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagetionRecords = require("../helpers/pagetionRecords")
+const paginationRecords = require("../helpers/paginationRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
@@ -18,28 +18,28 @@ module.exports.getApresentacaoCliente = async function(page, limit, missao, visa
       .whereLike("cliente_apresentado",`%${cliente_apresentado}%`)
       .orderBy('id_apresenta','DESC')
 
-      const {registros} = pagetionRecords(clientes, page, limit)
+      const {records} = paginationRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${records.limit} na page ${records.count} de records`);
       const clienteslimit = await database('apresentacao_cliente')
       .whereLike("missao",`%${missao}%`)
       .whereLike("visao",`%${visao}%`)
       .whereLike("valores",`%${valores}%`)
       .whereLike("cliente_apresentado",`%${cliente_apresentado}%`)
-      .limit(registros.limit)
-      .offset(registros.count)
+      .limit(records.limit)
+      .offset(records.count)
       .orderBy('id_apresenta','DESC')
 
       const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clienteslimit.length
-      registros.missao = missao
-      registros.visao = visao
-      registros.valores = valores
-      registros.cliente_apresentado = cliente_apresentado
+      records.total_apresentados = clienteslimit.length
+      records.missao = missao
+      records.visao = visao
+      records.valores = valores
+      records.cliente_apresentado = cliente_apresentado
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
-      const rs = response("sucesso", 200, filtered, "json", { registros });
+      const rs = response("sucesso", 200, filtered, "json", { records });
       return rs
 
 
