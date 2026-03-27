@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getRespostasCategoriazadas = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, resposta = '', pergunta_id = ''} = req.query
-      const results = await models.getRespostasCategoriazadas(pagina, limite, resposta, pergunta_id); 
+      const {page, limit, resposta = '', pergunta_id = ''} = req.query
+      const results = await models.getRespostasCategoriazadas(page, limit, resposta, pergunta_id); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

@@ -2,12 +2,12 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { riscosTruesFilteres } = require('../helpers/filterResponseSQL');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getRiscos = async function(pagina, limite, codigo_risco, titulo, descricao_risco, causa, consequencia, score, responsavel, status_riscos, risco_time) {
+module.exports.getRiscos = async function(page, limit, codigo_risco, titulo, descricao_risco, causa, consequencia, score, responsavel, status_riscos, risco_time) {
   try {
       
       logger("SERVIDOR:riscos").debug("Selecionar da base de dados")
@@ -24,10 +24,10 @@ module.exports.getRiscos = async function(pagina, limite, codigo_risco, titulo, 
       .whereLike("risco_time",`%${risco_time}%`)
       .orderBy('riscos_id','DESC')
 
-      const {registros} = paginationRecords(riscos, pagina, limite)
+      const {registros} = pagetionRecords(riscos, page, limit)
 
-      logger("riscos").debug(`Buscar todos riscos no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const riscosLimite = await database('riscos')
+      logger("riscos").debug(`Buscar todos riscos no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const riscoslimit = await database('riscos')
       .whereLike("codigo_risco",`%${codigo_risco}%`)
       .whereLike("titulo",`%${titulo}%`)
       .whereLike("descricao_risco",`%${descricao_risco}%`)
@@ -37,13 +37,13 @@ module.exports.getRiscos = async function(pagina, limite, codigo_risco, titulo, 
       .whereLike("responsavel",`%${responsavel}%`)
       .whereLike("status_riscos",`%${status_riscos}%`)
       .whereLike("risco_time",`%${risco_time}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('riscos_id','DESC')
 
-      const filtered = riscosTruesFilteres(riscosLimite)
+      const filtered = riscosTruesFilteres(riscoslimit)
 
-      registros.total_apresentados = riscosLimite.length
+      registros.total_apresentados = riscoslimit.length
       registros.codigo_risco = codigo_risco
       registros.titulo = titulo
       registros.descricao_risco = descricao_risco

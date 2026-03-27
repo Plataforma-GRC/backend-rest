@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getEscalaMatriz = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite} = req.query
-      const results = await models.getEscalaMatriz(pagina, limite); 
+      const {page, limit} = req.query
+      const results = await models.getEscalaMatriz(page, limit); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

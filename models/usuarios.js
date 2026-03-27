@@ -3,11 +3,11 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const pagination = require("../constants/pagination");
-const paginationRecords = require("../helpers/paginationRecords");
+const pagetion = require("../constants/pagetion");
+const pagetionRecords = require("../helpers/pagetionRecords");
 const { usuariosFilteres } = require('../helpers/filterResponseSQL');
 
-module.exports.getUsuarios = async function(pagina, limite, total_registros, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em) {
+module.exports.getUsuarios = async function(page, limit, total_registros, primeiro_nome_usuario, segundo_nome_usuario, email , acesso, tipo_usuario, cadastrado_em) {
   try {
 
       logger("SERVIDOR:Usuarios").debug("Selecionar da base de dados")
@@ -19,12 +19,12 @@ module.exports.getUsuarios = async function(pagina, limite, total_registros, pri
       .whereLike("acesso",`%${acesso}%`)
       .whereLike("tipo_usuario",`%${tipo_usuario}%`)
       .whereLike("cadastrado_em",`%${cadastrado_em}%`)
-      .limit(total_registros || pagination.total_limite)
+      .limit(total_registros || pagetion.total_limit)
       .orderBy("id_usuarios", "DESC");
 
-      const {registros} = paginationRecords(usuarios, pagina, limite)
+      const {registros} = pagetionRecords(usuarios, page, limit)
 
-      const usuariosLimite = await database("usuarios")
+      const usuarioslimit = await database("usuarios")
       .join("usuarios_funcoes", "usuarios_funcoes.id_usuarios_funcoes", "=", "usuarios.tipo_usuario")
       .whereLike("primeiro_nome_usuario",`%${primeiro_nome_usuario}%`)
       .whereLike("segundo_nome_usuario",`%${segundo_nome_usuario}%`)
@@ -32,12 +32,12 @@ module.exports.getUsuarios = async function(pagina, limite, total_registros, pri
       .whereLike("acesso",`%${acesso}%`)
       .whereLike("tipo_usuario",`%${tipo_usuario}%`)
       .whereLike("cadastrado_em",`%${cadastrado_em}%`)
-      .limit(total_registros || pagination.total_limite)
+      .limit(total_registros || pagetion.total_limit)
       .orderBy("id_usuarios", "DESC");
 
-      const filtered = usuariosFilteres(usuariosLimite)
+      const filtered = usuariosFilteres(usuarioslimit)
       
-      registros.total_apresentados = usuariosLimite.length
+      registros.total_apresentados = usuarioslimit.length
       registros.primeiro_nome_usuario = primeiro_nome_usuario
       registros.segundo_nome_usuario = segundo_nome_usuario
       registros.acesso = acesso

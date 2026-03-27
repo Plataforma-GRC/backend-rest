@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getListaCategoriaSubAoRisco = async function(pagina, limite, descricao_categoria_sub, categoria_de_risco_id_fk) {
+module.exports.getListaCategoriaSubAoRisco = async function(page, limit, descricao_categoria_sub, categoria_de_risco_id_fk) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -18,21 +18,21 @@ module.exports.getListaCategoriaSubAoRisco = async function(pagina, limite, desc
       .whereLike("categoria_de_risco_id_fk",`%${categoria_de_risco_id_fk}%`)
       .orderBy('id_lista_categoria_sub_de_risco','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('lista_categoria_sub_de_risco')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('lista_categoria_sub_de_risco')
       .join('lista_de_categoria_de_risco',"lista_de_categoria_de_risco.id_lista_de_categoria_de_risco","=","lista_categoria_sub_de_risco.categoria_de_risco_id_fk")
       .whereLike("descricao_categoria_sub",`%${descricao_categoria_sub}%`)
       //.whereLike("cliente_categorizado_fk",`%${cliente_categorizado_fk}%`)
       //.whereLike("categoria_de_risco_id_fk",`%${categoria_de_risco_id_fk}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_lista_categoria_sub_de_risco','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.descricao_categoria_sub = descricao_categoria_sub
       //registros.cliente_categorizado_fk = cliente_categorizado_fk
       registros.categoria_de_risco_id_fk = categoria_de_risco_id_fk

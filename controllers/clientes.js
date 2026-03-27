@@ -12,8 +12,8 @@ const StrengthSchecker = require('../helpers/StrengthSchecker');
 module.exports.getClientes = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, nome_empresa = '', nif = '', email = '', email_2 = '', contacto = '', contacto_2 = '', cliente_time = ''} = req.query
-      const results = await models.getClientes(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time); 
+      const {page, limit, nome_empresa = '', nif = '', email = '', email_2 = '', contacto = '', contacto_2 = '', cliente_time = ''} = req.query
+      const results = await models.getClientes(page, limit, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -111,8 +111,8 @@ module.exports.getClientesFrameworks = async function(req, res, next) {
   try{
 
     logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
-    const {pagina, limite, nome_empresa = '', nif = '', email = '', email_2 = '', contacto = '', contacto_2 = '', cliente_time = ''} = req.query
-    const results = await models.getClientesFrameworks(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time);
+    const {page, limit, nome_empresa = '', nif = '', email = '', email_2 = '', contacto = '', contacto_2 = '', cliente_time = ''} = req.query
+    const results = await models.getClientesFrameworks(page, limit, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time);
     res.status(results.statusCode).json(results)
     
   } catch (error) {

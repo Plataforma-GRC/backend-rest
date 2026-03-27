@@ -26,7 +26,7 @@ module.exports.codigoSeguranca = async (empresa, email, codigo_seguranca) => {
       subject: "Redifinição de senha - INTELIZE INVESTIMENTOS",
       // text: `Caro(a) cliente para redifinição de sua senha deverá introduzir o codigo de segurança: ${codigo_seguranca}`,
       html: `<p>Olá <b>${empresa}</b>,<br/>
-            Recentemente, você solicitou a redefinição da senha da sua conta <b style="color: rgb(38, 38, 173);">INTELIZE PAGAMENTOS</b>. Introduza o seguinte código na pagina aberta.</p>
+            Recentemente, você solicitou a redefinição da senha da sua conta <b style="color: rgb(38, 38, 173);">INTELIZE PAGAMENTOS</b>. Introduza o seguinte código na page aberta.</p>
             
             <h1>${codigo_seguranca}</h1>
             

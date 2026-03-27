@@ -5,11 +5,11 @@ const {hash} =  require('crypto')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres, clientesFrameworksFilteres, clientesFrameworksIdFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
+module.exports.getClientes = async function(page, limit, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -24,10 +24,10 @@ module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, e
       .whereLike("cliente_time",`%${cliente_time}%`)
       .orderBy('id_clientes','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('clientes')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('clientes')
       .whereLike("nome_empresa",`%${String(nome_empresa).toUpperCase()}%`)
       .whereLike("nif",`%${nif}%`)
       .whereLike("email",`%${email}%`)
@@ -35,13 +35,13 @@ module.exports.getClientes = async function(pagina, limite, nome_empresa, nif, e
       .whereLike("contacto",`%${contacto}%`)
       .whereLike("contacto_2",`%${contacto_2}%`)
       .whereLike("cliente_time",`%${cliente_time}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_clientes','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.nome_empresa = nome_empresa
       registros.nif = nif
       registros.email = email
@@ -104,7 +104,7 @@ module.exports.getClientesIdFrameworks = async function(id_clientes) {
         return rs    
       }
 
-      const clientesLimite = await database('clientes')
+      const clienteslimit = await database('clientes')
       .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
       .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
       .where({id_clientes})
@@ -113,7 +113,7 @@ module.exports.getClientesIdFrameworks = async function(id_clientes) {
       const [escalaMatriz] = await database('riscos_matriz_escala')
       .where({risco_escala_id: clientes?.cliente_matriz_escala_id})
 
-      const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
+      const filtered = clientesFrameworksIdFilteres(clientes, clienteslimit)
       
       delete filtered?.senha
 
@@ -229,7 +229,7 @@ module.exports.getClientesEmail = async function(email) {
     
 }
 
-module.exports.getClientesFrameworks = async function(pagina, limite, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
+module.exports.getClientesFrameworks = async function(page, limit, nome_empresa, nif, email, email_2, contacto, contacto_2, cliente_time) {
   try {
 
       const clientes = await database('clientes')
@@ -244,10 +244,10 @@ module.exports.getClientesFrameworks = async function(pagina, limite, nome_empre
       .whereLike("cliente_time",`%${cliente_time}%`)
       .orderBy('id_clientes','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('clientes')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('clientes')
       .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
       .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
       .whereLike("nome_empresa",`%${String(nome_empresa).toUpperCase()}%`)
@@ -257,16 +257,16 @@ module.exports.getClientesFrameworks = async function(pagina, limite, nome_empre
       .whereLike("contacto",`%${contacto}%`)
       .whereLike("contacto_2",`%${contacto_2}%`)
       .whereLike("cliente_time",`%${cliente_time}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_clientes','DESC')
 
 
       const clientesAll = await database('clientes')
 
-      const filtered = clientesFrameworksFilteres(clientesAll, clientesLimite)
+      const filtered = clientesFrameworksFilteres(clientesAll, clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.nome_empresa = nome_empresa
       registros.nif = nif
       registros.email = email
@@ -298,14 +298,14 @@ module.exports.getClientesFrameworksId = async function(id_clientes, clientes_fr
       .where({id_clientes})
       .orderBy('id_clientes','DESC')
 
-      const clientesLimite = await database('clientes')
+      const clienteslimit = await database('clientes')
       .join("clientes_frameworks","clientes_frameworks.clientes_id_fk","=","clientes.id_clientes")
       .join("framework","framework.framework_id","=","clientes_frameworks.frameworks_id_fk")
       .where({id_clientes})
       .andWhere({clientes_frameworks_id})
       .orderBy('id_clientes','DESC')
 
-      const filtered = clientesFrameworksIdFilteres(clientes, clientesLimite)
+      const filtered = clientesFrameworksIdFilteres(clientes, clienteslimit)
       
       delete filtered?.senha
       filtered.hashId = hash('sha1',String(filtered?.id_clientes))
@@ -436,8 +436,8 @@ module.exports.redifinirSenha = async function(codigo_seguranca, entidade, req) 
       await database('configuracoes').andWhere({cliente: entidade}).update({codigo_seguranca:"0000"}) 
       
       if(codigo_seguranca != "0000"){
-        logger("SERVIDOR:redifinirSenha").debug(`Actualizar e resetar as ${process.env.LIMITE_TENTATIVAS_LOGIN} tentativas`)
-        await database('configuracoes').where({cliente: cliente[0].id_clientes}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
+        logger("SERVIDOR:redifinirSenha").debug(`Actualizar e resetar as ${process.env.limit_TENTATIVAS_LOGIN} tentativas`)
+        await database('configuracoes').where({cliente: cliente[0].id_clientes}).update({tentativas_login: process.env.limit_TENTATIVAS_LOGIN})
 
         logger("SERVIDOR:redifinirSenha").info(`Codigo de segurança verificado`)
         const rs = response("sucesso", 202, 'Codigo de segurança verificado!','json',{
@@ -585,7 +585,7 @@ module.exports.loginClientes = async function({email, senha}, req) {
                   .where({email})
 
                   logger("SERVIDOR:loginClientes").debug("Repor os numeros de tentativas")
-                  await database('configuracoes').where({cliente: resultNew.entidade}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
+                  await database('configuracoes').where({cliente: resultNew.entidade}).update({tentativas_login: process.env.limit_TENTATIVAS_LOGIN})
 
                   logger("SERVIDOR:loginClientes").info("Cliente logado com sucesso") 
                   const rs = response("sucesso", 202, {hash:resultNew.hash, ultimo_login: resultNew.login, novo_usuario: resultNew.novo_usuario, entidade: resultNew.entidade, master: true});
@@ -1229,7 +1229,7 @@ module.exports.configurarReporClientes = async function(id_clientes,  tentativas
       }
 
       logger("SERVIDOR:configurarReporClientes").debug(`Actualizar os numeros de tentativas de login no padrão`)
-      await database('configuracoes').where({cliente: cliente[0].id_clientes}).update({tentativas_login: process.env.LIMITE_TENTATIVAS_LOGIN})
+      await database('configuracoes').where({cliente: cliente[0].id_clientes}).update({tentativas_login: process.env.limit_TENTATIVAS_LOGIN})
 
       logger("SERVIDOR:configurarReporClientes").debug(`Actualizar o cliente para o estado de novo cliente`)
       await database('clientes').where({id_clientes}).update({novo_cliente:"1"})

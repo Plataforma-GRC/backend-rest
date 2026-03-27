@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getApetites = async function(pagina, limite, pontuacao_minima, pontuacao_maxima, apetite, descricao, cliente_apetite) {
+module.exports.getApetites = async function(page, limit, pontuacao_minima, pontuacao_maxima, apetite, descricao, cliente_apetite) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -19,22 +19,22 @@ module.exports.getApetites = async function(pagina, limite, pontuacao_minima, po
       .whereLike("cliente_apetite",`%${cliente_apetite}%`)
       .orderBy('id_apetite','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('apetite_ao_risco')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('apetite_ao_risco')
       .whereLike("pontuacao_minima",`%${pontuacao_minima}%`)
       .whereLike("pontuacao_maxima",`%${pontuacao_maxima}%`)
       .whereLike("apetite",`%${apetite}%`)
       .whereLike("descricao",`%${descricao}%`)
       .whereLike("cliente_apetite",`%${cliente_apetite}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_apetite','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.pontuacao_minima = pontuacao_minima
       registros.pontuacao_maxima = pontuacao_maxima
       registros.apetite = apetite

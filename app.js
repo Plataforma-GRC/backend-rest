@@ -7,7 +7,7 @@ const helmet = require("helmet");
 const Sentry = require("@sentry/node");
 const xmlparser = require("express-xml-bodyparser");
 const compression = require('compression')
-const {fileUploadApp, rateLimiter, redirectURL, tokenApp, debugSentry, errorDisplay, errorHandle, validadeTokenApp, cacheRedis, timeoutApp, responseIndex} = require('./helpers/middlewares')
+const {fileUploadApp, ratelimitr, redirectURL, tokenApp, debugSentry, errorDisplay, errorHandle, validadeTokenApp, cacheRedis, timeoutApp, responseIndex} = require('./helpers/middlewares')
 
 
 // Importe de rotas
@@ -40,7 +40,7 @@ Sentry.init({
 
 app.use(Sentry.Handlers.requestHandler());
 app.use(fileUploadApp);
-app.use(rateLimiter);
+app.use(ratelimitr);
 app.use(helmet({ crossOriginResourcePolicy: false })); 
 
 app.use(loggerMorgan("dev"));

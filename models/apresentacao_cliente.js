@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getApresentacaoCliente = async function(pagina, limite, missao, visao, valores, cliente_apresentado) {
+module.exports.getApresentacaoCliente = async function(page, limit, missao, visao, valores, cliente_apresentado) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -18,21 +18,21 @@ module.exports.getApresentacaoCliente = async function(pagina, limite, missao, v
       .whereLike("cliente_apresentado",`%${cliente_apresentado}%`)
       .orderBy('id_apresenta','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('apresentacao_cliente')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('apresentacao_cliente')
       .whereLike("missao",`%${missao}%`)
       .whereLike("visao",`%${visao}%`)
       .whereLike("valores",`%${valores}%`)
       .whereLike("cliente_apresentado",`%${cliente_apresentado}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_apresenta','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.missao = missao
       registros.visao = visao
       registros.valores = valores

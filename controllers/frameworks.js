@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getFrameworks = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
-      const results = await models.getFrameworks(pagina, limite, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status); 
+      const {page, limit, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
+      const results = await models.getFrameworks(page, limit, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -25,7 +25,7 @@ module.exports.getFrameworksTipo = async function(req, res, next) {
   try{
 
     logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
-    const {pagina, limite, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
+    const {page, limit, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
     const {framework_tipo_id} = req.params
 
     const results = await models.getFrameworksTipo(framework_tipo_id, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status);
@@ -44,7 +44,7 @@ module.exports.getFrameworksOrgao = async function(req, res, next) {
   try{
 
     logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
-    const {pagina, limite, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
+    const {page, limit, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
     const {framework_orgao_id} = req.params
 
     const results = await models.getFrameworksOrgao(framework_orgao_id, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status);
@@ -63,7 +63,7 @@ module.exports.getFrameworksCliente = async function(req, res, next) {
   try{
 
     logger("SERVIDOR:ClientesId").info("Buscar cliente pelo Id")
-    const {pagina, limite, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
+    const {page, limit, framework_nome = '', framework_sigla = '', framework_descricao = '', framework_ano = '', framework_status = ''} = req.query
     const {clientes_id_fk} = req.params
 
     const results = await models.getFrameworksCliente(clientes_id_fk, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status);

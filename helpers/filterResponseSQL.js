@@ -19,7 +19,7 @@ module.exports.pagamentosFilteres = function(resultSet = []){
         delete rf.RFU
         delete rf.criada_r
         delete rf.actualiza_em
-        delete rf.data_limite_pagamento
+        delete rf.data_limit_pagamento
         delete rf.estado_atm
         delete rf.usabilidade
         delete rf.tipo_referencia_pagamento
@@ -83,7 +83,7 @@ module.exports.periodosFilteres = function(resultSet = []){
         delete rf.pagamento_MFT
         delete rf.criada_r
         delete rf.actualiza_em
-        delete rf.data_limite_pagamento
+        delete rf.data_limit_pagamento
         delete rf.estado_atm
         delete rf.usabilidade
         delete rf.tipo_referencia_pagamento

@@ -64,7 +64,7 @@
                     <td><%= v.codigo_de_processamento == "80" ? "Activo" : "Inactivo" %></td>                    
                     <td><%= new Date(v.criada_r).toLocaleDateString()%>  <% new Date(v.criada_r).toLocaleTimeString() %></td>                    
                     <td><%= v.registo_produto %></td>                    
-                    <td><%= new Date(v.data_limite_pagamento).toLocaleDateString() %></td>                    
+                    <td><%= new Date(v.data_limit_pagamento).toLocaleDateString() %></td>                    
                 </tr>
                 <% }; %>
         </tbody>

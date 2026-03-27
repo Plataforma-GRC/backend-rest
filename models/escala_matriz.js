@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres, escalasMatrizFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getEscalaMatriz = async function(pagina, limite) {
+module.exports.getEscalaMatriz = async function(page, limit) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -14,17 +14,17 @@ module.exports.getEscalaMatriz = async function(pagina, limite) {
       const Industrias = await database('riscos_matriz')
       .orderBy('risco_matriz_id','DESC')
 
-      const {registros} = paginationRecords(Industrias, pagina, limite)
+      const {registros} = pagetionRecords(Industrias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('riscos_matriz')
-      .limit(registros.limite)
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('riscos_matriz')
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('risco_matriz_id','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
       const rs = response("sucesso", 200, filtered, "json", { registros });

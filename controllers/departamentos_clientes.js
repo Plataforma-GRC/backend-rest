@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getDepartamentosClientes = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, empresa_dona = '', departamento = ''} = req.query
-      const results = await models.getDepartamentosClientes(pagina, limite, empresa_dona, departamento); 
+      const {page, limit, empresa_dona = '', departamento = ''} = req.query
+      const results = await models.getDepartamentosClientes(page, limit, empresa_dona, departamento); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getJurisdicaoActiva = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, jurisdicao_orgao_regulador = '', jurisdicao_activa_pais = ''} = req.query
-      const results = await models.getJurisdicaoActiva(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais); 
+      const {page, limit, jurisdicao_orgao_regulador = '', jurisdicao_activa_pais = ''} = req.query
+      const results = await models.getJurisdicaoActiva(page, limit, jurisdicao_orgao_regulador, jurisdicao_activa_pais); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -24,8 +24,8 @@ module.exports.getJurisdicaoActiva = async function(req, res, next) {
 module.exports.getJurisdicaoActivaComFrameworks = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, jurisdicao_orgao_regulador = '', jurisdicao_activa_pais = ''} = req.query
-      const results = await models.getJurisdicaoActivaComFrameworks(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais); 
+      const {page, limit, jurisdicao_orgao_regulador = '', jurisdicao_activa_pais = ''} = req.query
+      const results = await models.getJurisdicaoActivaComFrameworks(page, limit, jurisdicao_orgao_regulador, jurisdicao_activa_pais); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

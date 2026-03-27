@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { listaDeCategoriasTruesFilteres, CategoriasComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getListaDeCategorias = async function(pagina, limite, categoria) {
+module.exports.getListaDeCategorias = async function(page, limit, categoria) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -15,18 +15,18 @@ module.exports.getListaDeCategorias = async function(pagina, limite, categoria) 
       .whereLike("categoria",`%${categoria}%`)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const {registros} = paginationRecords(listaDeCategorias, pagina, limite)
+      const {registros} = pagetionRecords(listaDeCategorias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const listaDeCategoriasLimite = await database('lista_de_categoria_de_risco')
+      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const listaDeCategoriaslimit = await database('lista_de_categoria_de_risco')
       .whereLike("categoria",`%${categoria}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const filtered = listaDeCategoriasTruesFilteres(listaDeCategoriasLimite)
+      const filtered = listaDeCategoriasTruesFilteres(listaDeCategoriaslimit)
 
-      registros.total_apresentados = listaDeCategoriasLimite.length
+      registros.total_apresentados = listaDeCategoriaslimit.length
       registros.categoria = categoria
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
@@ -43,7 +43,7 @@ module.exports.getListaDeCategorias = async function(pagina, limite, categoria) 
     
 }
 
-module.exports.getListaDeCategoriasComFrameworks = async function(pagina, limite, categoria) {
+module.exports.getListaDeCategoriasComFrameworks = async function(page, limit, categoria) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -54,26 +54,26 @@ module.exports.getListaDeCategoriasComFrameworks = async function(pagina, limite
       .whereLike("categoria",`%${categoria}%`)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const {registros} = paginationRecords(listaDeCategorias, pagina, limite)
+      const {registros} = pagetionRecords(listaDeCategorias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const listaDeCategoriasLimite = await database('lista_de_categoria_de_risco')
+      logger("Clientes").debug(`Buscar todos listaDeCategorias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const listaDeCategoriaslimit = await database('lista_de_categoria_de_risco')
       .join("framework_risco_categoria","framework_risco_categoria.risco_categoria_id_fk","=","lista_de_categoria_de_risco.id_lista_de_categoria_de_risco")
       .join("framework","framework.framework_id", "=" ,"framework_risco_categoria.framework_id_fk")
       .whereLike("categoria",`%${categoria}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
       const listaDeCategoriasEvery = await database('lista_de_categoria_de_risco')
       .whereLike("categoria",`%${categoria}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_lista_de_categoria_de_risco','DESC')
 
-      const filtered = CategoriasComFrameworksTruesFilteres(listaDeCategoriasEvery, listaDeCategoriasLimite)
+      const filtered = CategoriasComFrameworksTruesFilteres(listaDeCategoriasEvery, listaDeCategoriaslimit)
 
-      registros.total_apresentados = listaDeCategoriasLimite.length
+      registros.total_apresentados = listaDeCategoriaslimit.length
       registros.categoria = categoria
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")

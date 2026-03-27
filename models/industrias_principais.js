@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getIndustriasPrincipais = async function(pagina, limite, industrias_principal_descricao) {
+module.exports.getIndustriasPrincipais = async function(page, limit, industrias_principal_descricao) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -15,18 +15,18 @@ module.exports.getIndustriasPrincipais = async function(pagina, limite, industri
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
       .orderBy('id_industrias_principal','DESC')
 
-      const {registros} = paginationRecords(Industrias, pagina, limite)
+      const {registros} = pagetionRecords(Industrias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('industrias_principais')
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('industrias_principais')
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_industrias_principal','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.industrias_principal_descricao = industrias_principal_descricao
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")
@@ -43,7 +43,7 @@ module.exports.getIndustriasPrincipais = async function(pagina, limite, industri
     
 }
 
-module.exports.getIndustriasPrincipaisComFrameworks = async function(pagina, limite, industrias_principal_descricao) {
+module.exports.getIndustriasPrincipaisComFrameworks = async function(page, limit, industrias_principal_descricao) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -52,18 +52,18 @@ module.exports.getIndustriasPrincipaisComFrameworks = async function(pagina, lim
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
       .orderBy('id_industrias_principal','DESC')
 
-      const {registros} = paginationRecords(Industrias, pagina, limite)
+      const {registros} = pagetionRecords(Industrias, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('industrias_principais')
+      logger("Clientes").debug(`Buscar todos Industrias no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('industrias_principais')
       .whereLike("industrias_principal_descricao",`%${industrias_principal_descricao}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_industrias_principal','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.industrias_principal_descricao = industrias_principal_descricao
 
       logger("SERVIDOR:Clientes").info("Respondeu a solicitação")

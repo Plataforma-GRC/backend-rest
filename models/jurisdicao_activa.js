@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres, JurisdicaoComFrameworksTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
+module.exports.getJurisdicaoActiva = async function(page, limit, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -16,19 +16,19 @@ module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_o
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .orderBy('jurisdicao_activa_id','DESC')
 
-      const {registros} = paginationRecords(Jurisdicao, pagina, limite)
+      const {registros} = pagetionRecords(Jurisdicao, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Jurisdicao no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const JurisdicaoLimite = await database('jurisdicao_activa')
+      logger("Clientes").debug(`Buscar todos Jurisdicao no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const Jurisdicaolimit = await database('jurisdicao_activa')
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('jurisdicao_activa_id','DESC')
 
-      const filtered = clientesTruesFilteres(JurisdicaoLimite)
+      const filtered = clientesTruesFilteres(Jurisdicaolimit)
 
-      registros.total_apresentados = JurisdicaoLimite.length
+      registros.total_apresentados = Jurisdicaolimit.length
       registros.jurisdicao_orgao_regulador = jurisdicao_orgao_regulador
       registros.jurisdicao_activa_pais = jurisdicao_activa_pais
 
@@ -46,7 +46,7 @@ module.exports.getJurisdicaoActiva = async function(pagina, limite, jurisdicao_o
     
 }
 
-module.exports.getJurisdicaoActivaComFrameworks = async function(pagina, limite, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
+module.exports.getJurisdicaoActivaComFrameworks = async function(page, limit, jurisdicao_orgao_regulador, jurisdicao_activa_pais) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -58,28 +58,28 @@ module.exports.getJurisdicaoActivaComFrameworks = async function(pagina, limite,
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
       .orderBy('framework_id','DESC')
 
-      const {registros} = paginationRecords(Jurisdicao, pagina, limite)
+      const {registros} = pagetionRecords(Jurisdicao, page, limit)
 
-      logger("Clientes").debug(`Buscar todos Jurisdicao no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const JurisdicaoLimite = await database('jurisdicao_activa')
+      logger("Clientes").debug(`Buscar todos Jurisdicao no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const Jurisdicaolimit = await database('jurisdicao_activa')
       .join("framework_jurisdicao","framework_jurisdicao.jurisdicao_activa_id_fk","=","jurisdicao_activa.jurisdicao_activa_id")
       .join("framework","framework.framework_id", "=" ,"framework_jurisdicao.framework_id_fk")
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('framework_id','DESC')
 
       const JurisdicaoEvery = await database('jurisdicao_activa')
       .whereLike("jurisdicao_orgao_regulador",`%${jurisdicao_orgao_regulador}%`)
       .whereLike("jurisdicao_activa_pais",`%${jurisdicao_activa_pais}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('jurisdicao_activa_id','DESC')
 
-      const filtered = JurisdicaoComFrameworksTruesFilteres(JurisdicaoEvery, JurisdicaoLimite)
+      const filtered = JurisdicaoComFrameworksTruesFilteres(JurisdicaoEvery, Jurisdicaolimit)
 
-      registros.total_apresentados = JurisdicaoLimite.length
+      registros.total_apresentados = Jurisdicaolimit.length
       registros.jurisdicao_orgao_regulador = jurisdicao_orgao_regulador
       registros.jurisdicao_activa_pais = jurisdicao_activa_pais
 

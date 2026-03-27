@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getUsuariosFuncoes = async function(pagina, limite, usuario_funcao, empresa_funcao_fk) {
+module.exports.getUsuariosFuncoes = async function(page, limit, usuario_funcao, empresa_funcao_fk) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -17,20 +17,20 @@ module.exports.getUsuariosFuncoes = async function(pagina, limite, usuario_funca
       .whereLike("empresa_funcao_fk",`%${empresa_funcao_fk}%`)
       .orderBy('id_usuarios_funcoes','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('usuarios_funcoes')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('usuarios_funcoes')
       .join('clientes',"clientes.id_clientes","=","usuarios_funcoes.empresa_funcao_fk")
       .whereLike("usuario_funcao",`%${usuario_funcao}%`)
       .whereLike("empresa_funcao_fk",`%${empresa_funcao_fk}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_usuarios_funcoes','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.empresa_funcao_fk = usuario_funcao
       registros.empresa_funcao_fk = empresa_funcao_fk
 

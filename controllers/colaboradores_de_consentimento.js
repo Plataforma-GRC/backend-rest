@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getColaboradoresConsentimentos = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, empresa_id = '', departamento_id = '', nome_colaborador = '', telefone = '', cargo = ''} = req.query
-      const results = await models.getColaboradoresConsentimentos(pagina, limite, empresa_id, departamento_id, nome_colaborador, telefone, cargo); 
+      const {page, limit, empresa_id = '', departamento_id = '', nome_colaborador = '', telefone = '', cargo = ''} = req.query
+      const results = await models.getColaboradoresConsentimentos(page, limit, empresa_id, departamento_id, nome_colaborador, telefone, cargo); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

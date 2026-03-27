@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getApetites = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, pontuacao_minima = '', pontuacao_maxima = '', apetite = '', descricao = '', cliente_apetite = '',} = req.query
-      const results = await models.getApetites(pagina, limite, pontuacao_minima, pontuacao_maxima, apetite, descricao, cliente_apetite ); 
+      const {page, limit, pontuacao_minima = '', pontuacao_maxima = '', apetite = '', descricao = '', cliente_apetite = '',} = req.query
+      const results = await models.getApetites(page, limit, pontuacao_minima, pontuacao_maxima, apetite, descricao, cliente_apetite ); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

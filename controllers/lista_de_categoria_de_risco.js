@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getListaDeCategorias = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, categoria = ''} = req.query
-      const results = await models.getListaDeCategorias(pagina, limite, categoria); 
+      const {page, limit, categoria = ''} = req.query
+      const results = await models.getListaDeCategorias(page, limit, categoria); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -24,8 +24,8 @@ module.exports.getListaDeCategorias = async function(req, res, next) {
 module.exports.getListaDeCategoriasComFrameworks = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, categoria = ''} = req.query
-      const results = await models.getListaDeCategoriasComFrameworks(pagina, limite, categoria); 
+      const {page, limit, categoria = ''} = req.query
+      const results = await models.getListaDeCategoriasComFrameworks(page, limit, categoria); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

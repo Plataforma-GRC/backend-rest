@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getColaboradoresConsentimentos = async function(pagina, limite, empresa_id, departamento_id, nome_colaborador, telefone, cargo) {
+module.exports.getColaboradoresConsentimentos = async function(page, limit, empresa_id, departamento_id, nome_colaborador, telefone, cargo) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -19,22 +19,22 @@ module.exports.getColaboradoresConsentimentos = async function(pagina, limite, e
       .whereLike("cargo",`%${cargo}%`)
       .orderBy('id_colaborador_de_consentimento','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('colaboradores_de_consentimento_das_categorias')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('colaboradores_de_consentimento_das_categorias')
       .whereLike("departamento_id",`%${departamento_id}%`)
       .whereLike("empresa_id",`%${empresa_id}%`)
       .whereLike("nome_colaborador",`%${nome_colaborador}%`)
       .whereLike("telefone",`%${telefone}%`)
       .whereLike("cargo",`%${cargo}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('id_colaborador_de_consentimento','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.departamento_id = departamento_id
       registros.empresa_id = empresa_id
       registros.nome_colaborador = nome_colaborador

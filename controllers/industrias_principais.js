@@ -8,8 +8,8 @@ const sendRequestOnMicroservices = require("../helpers/sendRequestOnMicroservice
 module.exports.getIndustriasPrincipais = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, industrias_principal_descricao = ''} = req.query
-      const results = await models.getIndustriasPrincipais(pagina, limite, industrias_principal_descricao); 
+      const {page, limit, industrias_principal_descricao = ''} = req.query
+      const results = await models.getIndustriasPrincipais(page, limit, industrias_principal_descricao); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {
@@ -24,8 +24,8 @@ module.exports.getIndustriasPrincipais = async function(req, res, next) {
 module.exports.getIndustriasPrincipaisComFrameworks = async function(req, res, next) {
   try{
       logger("SERVIDOR:Clientes").info("Buscar clientes")
-      const {pagina, limite, industrias_principal_descricao = ''} = req.query
-      const results = await models.getIndustriasPrincipaisComFrameworks(pagina, limite, industrias_principal_descricao); 
+      const {page, limit, industrias_principal_descricao = ''} = req.query
+      const results = await models.getIndustriasPrincipaisComFrameworks(page, limit, industrias_principal_descricao); 
       res.status(results.statusCode).json(results)
     
   } catch (error) {

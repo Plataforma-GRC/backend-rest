@@ -2,11 +2,11 @@ const database = require('../config/database')
 const path = require("path");
 const response = require("../constants/response");
 const logger = require('../services/loggerService');
-const paginationRecords = require("../helpers/paginationRecords")
+const pagetionRecords = require("../helpers/pagetionRecords")
 const { clientesTruesFilteres } = require('../helpers/filterResponseSQL');
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) });
 
-module.exports.getFrameworks = async function(pagina, limite, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status) {
+module.exports.getFrameworks = async function(page, limit, framework_nome, framework_sigla, framework_descricao, framework_ano, framework_status) {
   try {
       
       logger("SERVIDOR:Clientes").debug("Selecionar da base de dados")
@@ -19,22 +19,22 @@ module.exports.getFrameworks = async function(pagina, limite, framework_nome, fr
       .whereLike("framework_status",`%${framework_status}%`)
       .orderBy('framework_id','DESC')
 
-      const {registros} = paginationRecords(clientes, pagina, limite)
+      const {registros} = pagetionRecords(clientes, page, limit)
 
-      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limite de ${registros.limite} na pagina ${registros.count} de registros`);
-      const clientesLimite = await database('framework')
+      logger("Clientes").debug(`Buscar todos clientes no banco de dados com limit de ${registros.limit} na page ${registros.count} de registros`);
+      const clienteslimit = await database('framework')
       .whereLike("framework_nome",`%${framework_nome}%`)
       .whereLike("framework_sigla",`%${framework_sigla}%`)
       .whereLike("framework_descricao",`%${framework_descricao}%`)
       .whereLike("framework_ano",`%${framework_ano}%`)
       .whereLike("framework_status",`%${framework_status}%`)
-      .limit(registros.limite)
+      .limit(registros.limit)
       .offset(registros.count)
       .orderBy('framework_id','DESC')
 
-      const filtered = clientesTruesFilteres(clientesLimite)
+      const filtered = clientesTruesFilteres(clienteslimit)
 
-      registros.total_apresentados = clientesLimite.length
+      registros.total_apresentados = clienteslimit.length
       registros.framework_nome = framework_nome
       registros.framework_sigla = framework_sigla
       registros.framework_descricao = framework_descricao

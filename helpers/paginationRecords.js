@@ -1,15 +1,15 @@
-const pagination = require("../constants/pagination")
-module.exports = function(registro, pagina = pagination.pagina, limite = pagination.limite){
+const pagetion = require("../constants/pagetion")
+module.exports = function(registro, page = pagetion.page, limit = pagetion.limit){
 
     const numero_registros = registro.length;
-    const registroPorPagina =  +limite || 100
-    let  pagina_actual = +pagina || 1
-    let total_paginas = Math.ceil(numero_registros/registroPorPagina); 
+    const registroPorpage =  +limit || 100
+    let  page_actual = +page || 1
+    let total_pages = Math.ceil(numero_registros/registroPorpage); 
     
-    if(pagina_actual == "0") pagina_actual = pagination.pagina;
-    if(registroPorPagina == "0") registroPorPagina = pagination.limite;
+    if(page_actual == "0") page_actual = pagetion.page;
+    if(registroPorpage == "0") registroPorpage = pagetion.limit;
     
-    let count = (pagina_actual * registroPorPagina) - registroPorPagina;
+    let count = (page_actual * registroPorpage) - registroPorpage;
 
-    return { registros: {paginas: total_paginas, pagina_actual: pagina_actual, total: numero_registros, limite:registroPorPagina, count } }
+    return { registros: {pages: total_pages, page_actual: page_actual, total: numero_registros, limit:registroPorpage, count } }
 }

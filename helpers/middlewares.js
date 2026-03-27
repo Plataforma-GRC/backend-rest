@@ -8,14 +8,14 @@ const path = require("path");
 const fileUpload = require("express-fileupload");
 require("dotenv").config({ path: path.resolve(path.join(__dirname,'../','.env')) }); 
 
-module.exports.rateLimiter = rateLimit({
+module.exports.ratelimitr = rateLimit({
   // windowMs: 60 * 60 * 1000, // 60 minutos
   windowMs: process.env.TIME_REQUEST_FOR_DDOS, // 60 minutos
   max: 100, // Limita a cada IP 1000 solicitações por janela
   message: { 
     status: "erro",
     mensagem:
-    "Muitas solicitações feitas a partir deste IP, tente novamente após uma hora. Atingiu o limite de 100 requisições por segundo (100/s)"
+    "Muitas solicitações feitas a partir deste IP, tente novamente após uma hora. Atingiu o limit de 100 requisições por segundo (100/s)"
   }
 });
 
